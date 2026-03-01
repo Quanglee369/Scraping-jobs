@@ -86,7 +86,7 @@ async def fetch_job_headers(session, keyword: str, platform: str):
 # [FUNCTION] Eliminate loading unnecessary resources (image, stylesheet, font, etc.)
 async def apply_speedup(page):
     async def intercept(route):
-        if route.request.resource_type in ["image", "stylesheet", "font", "media"]:
+        if route.request.resource_type in ["image", "media"]:
             await route.abort()
         else:
             await route.continue_()
@@ -175,56 +175,73 @@ async def run_itviec_scraper(keyword: str):
     all_jobs = []
     clean_keyword = keyword.strip().lower().replace(' ', '-')
 
-    # Initialize Playwright Stealth
-    async with stealth.use_async(async_playwright()) as p:
-        browser = await p.chromium.launch(headless=True)
-        # Configure viewport to mimic user behavior
-        context = await browser.new_context(viewport={'width': 1920, 'height': 1080})
-        page = await context.new_page()
+    browser = None
+    context = None
+    page = None
 
-        # Apply speed up function
-        await apply_speedup(page)
+    try:
+        # Initialize Playwright Stealth
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+               headless=True,
+               args=["--disable-blink-features=AutomationControlled"])
+            # Configure viewport to mimic user behavior
+            context = await browser.new_context(viewport={'width': 1920, 'height': 1080})
+            page = await context.new_page()
 
-        url = f"https://itviec.com/it-jobs/{clean_keyword}"
-        print(f"[run_itviec_scraper] Accessing: {url}")
-        await page.goto(url, wait_until="domcontentloaded")
+            # Apply speed up function
+            await Stealth(page)
+            await apply_speedup(page)
 
-        # Loop through all page until there is no page left for the keyword
-        page_count = 1
-        while True:
-            print(f"[run_itviec_scraper] Processing page {page_count}...")
-            jobs_on_page = await extract_page_data_itviec(page)
-            all_jobs.extend(jobs_on_page)
-            print(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
+            url = f"https://itviec.com/it-jobs/{clean_keyword}"
+            print(f"[run_itviec_scraper] Accessing: {url}")
+            await page.goto(url, wait_until="domcontentloaded")
 
-            # Save current page number
-            current_page_el = await page.query_selector(".page.current")
-            if not current_page_el:
-                break
-            old_page_num = await current_page_el.inner_text()
+            # Loop through all page until there is no page left for the keyword
+            page_count = 1
+            while True:
+                print(f"[run_itviec_scraper] Processing page {page_count}...")
+                jobs_on_page = await extract_page_data_itviec(page)
+                all_jobs.extend(jobs_on_page)
+                print(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
 
-            # Move to next page
-            next_button = await page.query_selector('a[rel="next"]')
-            if next_button:
-                await next_button.click()
-                page_count += 1
-
-                # Check if moved to next page is successful by comparing current page number with old page number
-                try:
-                    await page.wait_for_function(
-                        f"document.querySelector('.page.current').innerText !== '{old_page_num}'",
-                        timeout=7000
-                    )
-                except Exception:
-                    print("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
+                # Save current page number
+                current_page_el = await page.query_selector(".page.current")
+                if not current_page_el:
                     break
-            else:
-                print("[run_itviec_scraper] Complete.")
-                break
+                old_page_num = await current_page_el.inner_text()
 
-        await browser.close()
-        print(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
-        return all_jobs
+                # Move to next page
+                next_button = await page.query_selector('a[rel="next"]')
+                if next_button:
+                    await next_button.click()
+                    page_count += 1
+
+                    # Check if moved to next page is successful by comparing current page number with old page number
+                    try:
+                        await page.wait_for_function(
+                            f"document.querySelector('.page.current').innerText !== '{old_page_num}'",
+                            timeout=7000
+                        )
+                    except Exception:
+                        print("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
+                        break
+                else:
+                    print("[run_itviec_scraper] Complete.")
+                    break
+                    
+    except Exception as e:
+       logging.error(f'[run_itviec_scraper] Error: {e}')
+    finally:
+        if page:
+            await page.close()
+        if context:
+            await context.close()
+        if browser:
+            await browser.close()
+                    
+    print(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
+    return all_jobs
 
 
 # [FUNTION] function to process a list of dicts that have key as job_id and value as job_title
