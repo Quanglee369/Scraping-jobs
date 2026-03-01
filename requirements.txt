@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+requests
+httpx
+aiohttp
+langchain-groq
+pydantic
+sqlalchemy
+psycopg2-binary
+playwright
+playwright-stealth
