@@ -2,8 +2,9 @@ name: Daily Job Scraper
 
 on:
   schedule:
-    - cron: '0 1 * * *'
-  workflow_dispatch:      # Allows you to click "Run Now" manually
+    # Runs at 01:00 UTC (08:00 AM Vietnam Time GMT+7)
+    - cron: '0 1 * * *' 
+  workflow_dispatch: # Manual trigger for testing
 
 jobs:
   scrape_and_upload:
@@ -28,9 +29,21 @@ jobs:
           python -m playwright install chromium
           python -m playwright install-deps
 
-      - name: Run Scraper Script
+      - name: Run Scraper Script with Retry Logic
+        # This prevents failure notifications for simple network timeouts
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: python your_scraper_script.py
         env:
-          # This maps your GitHub Secrets to your Python environment variables
+          # Use GitHub Secrets for security in your public repo
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python your_scraper_script.py
+
+      - name: Notify on Failure
+        if: failure() # Only runs if the retry attempts all fail
+        run: |
+          echo "The Daily Scraper failed!"
+          echo "Check the Run ID: ${{ github.run_id }}"
+          echo "View logs at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
