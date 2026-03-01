@@ -1,15 +1,14 @@
-name: Daily Job Scraper
+name: Daily Modular Scraper
 
 on:
   schedule:
-    # Runs at 01:00 UTC (08:00 AM Vietnam Time GMT+7)
+    # 01:00 UTC = 08:00 AM Vietnam Time (GMT+7)
     - cron: '0 1 * * *' 
-  workflow_dispatch: # Allows you to click "Run Now" manually
+  workflow_dispatch: # Manual "Run Now" button
 
 jobs:
-  scrape_and_upload:
+  heavy_scrape:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,40 +16,60 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Install Playwright Browsers
-        run: |
           python -m playwright install chromium
           python -m playwright install-deps
 
-      - name: Run Scraper Script with Retry
-        # Retries up to 3 times to handle temporary network/DB blips
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          command: python script.py
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      - name: Run Heavy Scraper
+        # script.py MUST end with: df_master.to_csv('df_master.csv', index=False)
+        run: python script.py 
 
-      - name: Upload Private Debug Log
-        if: always() # Ensures the log is saved even if the script crashes
+      - name: Save Scraped Data & Logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-debug-log-${{ github.run_id }}
-          path: scraper_debug.log
-          retention-days: 1 # Automatically deletes after 24 hours for privacy
+          name: scraper-intermediate-data
+          path: |
+            df_master.csv
+            scraper_debug.log
+          retention-days: 1
 
-      - name: Notify on Failure
-        if: failure() # Only triggers if the script fails after all retries
+  upload_to_supabase:
+    needs: heavy_scrape # Wait for the scraper to finish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install DB & ML Libraries
+        # We install only what upload_data.py needs for speed
         run: |
-          echo "The Daily Scraper failed!"
-          echo "Run ID: ${{ github.run_id }}"
-          echo "View logs at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          pip install pandas numpy scikit-learn sqlalchemy psycopg2-binary
+
+      - name: Download Scraped Data & Logs
+        uses: actions/download-artifact@v4
+        with:
+          name: scraper-intermediate-data
+
+      - name: Run Light Uploader
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python upload_data.py
+
+      - name: Final Log Sync
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-execution-log-${{ github.run_id }}
+          path: scraper_debug.log
+          retention-days: 1
