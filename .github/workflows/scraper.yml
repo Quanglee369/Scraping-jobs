@@ -26,7 +26,8 @@ jobs:
           python -m playwright install-deps
 
       - name: Run Heavy Scraper
-        # script.py MUST end with: df_master.to_csv('df_master.csv', index=False)
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python script.py 
 
       - name: Save Scraped Data & Logs
