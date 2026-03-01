@@ -2,8 +2,6 @@ import re
 import logging
 import copy
 
-"""Code Block 2: Data cleaning functions"""
-
 # [FUNCTION] Filter out relevant job header, as the primary focus is data related job (data engineer, data scientist and dat analyst)
 def filter_relevant(data, platform: str):
 

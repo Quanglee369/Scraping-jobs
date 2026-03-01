@@ -6,10 +6,14 @@ import hashlib
 import json
 import time
 import pandas as pd
-from datetime import timedelta
-from itertools import chain
+from datetime import timedelta, datetime
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
+from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel, Field
+from typing import List, Literal, Union
+import os
 
 
 # [FUNCTION] Fetch JD from each link, only apply to Careerviet as they do not have skill section in the job headers
@@ -121,21 +125,21 @@ async def extract_card_data(card):
   rawtext = await date_el.inner_text() if date_el else "N/A"
   rawtext = rawtext.replace('\n', ' ').strip()
   days_match = re.search(r'\d+', rawtext)
-  current_date = pd.Timestamp.now().date()
+  current_date = datetime.now()
   if days_match and 'hour' in rawtext.lower():
       actual_hours = int(days_match.group())
-      postingdate = (current_date- timedelta(hours = actual_hours))
+      postingdate = (current_date- timedelta(hours = actual_hours)).date()
 
   elif days_match and 'day' in rawtext.lower():
       actual_day = int(days_match.group())
-      postingdate = (current_date - timedelta(days = actual_day))
+      postingdate = (current_date - timedelta(days = actual_day)).date()
 
   elif days_match and 'minute' in rawtext.lower():
       actual_min = int(days_match.group())
-      postingdate = (current_date - timedelta(minutes = actual_min))
+      postingdate = (current_date - timedelta(minutes = actual_min)).date()
 
   else:
-      postingdate = 'N/A'
+      postingdate = current_date.date()
 
   # Prepare data for hashing for job id
   skill_for_hash = ''.join(skills)
@@ -181,16 +185,19 @@ async def run_itviec_scraper(keyword: str):
 
     try:
         # Initialize Playwright Stealth
-        async with async_playwright() as p:
+        async with stealth.use_async(async_playwright()) as p:
             browser = await p.chromium.launch(
                headless=True,
-               args=["--disable-blink-features=AutomationControlled"])
+               args=["--disable-blink-features=AutomationControlled",
+                     "--no-sandbox",
+                     "--disable-gpu",
+                     "--disable-dev-shm-usage",
+                     "--disable-extensions"])
             # Configure viewport to mimic user behavior
             context = await browser.new_context(viewport={'width': 1920, 'height': 1080})
             page = await context.new_page()
 
             # Apply speed up function
-            await Stealth(page)
             await apply_speedup(page)
 
             url = f"https://itviec.com/it-jobs/{clean_keyword}"
@@ -200,10 +207,10 @@ async def run_itviec_scraper(keyword: str):
             # Loop through all page until there is no page left for the keyword
             page_count = 1
             while True:
-                print(f"[run_itviec_scraper] Processing page {page_count}...")
+                logging.debug(f"[run_itviec_scraper] Processing page {page_count}...")
                 jobs_on_page = await extract_page_data_itviec(page)
                 all_jobs.extend(jobs_on_page)
-                print(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
+                logging.debug(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
 
                 # Save current page number
                 current_page_el = await page.query_selector(".page.current")
@@ -224,23 +231,18 @@ async def run_itviec_scraper(keyword: str):
                             timeout=7000
                         )
                     except Exception:
-                        print("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
+                        logging.warning("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
                         break
                 else:
-                    print("[run_itviec_scraper] Complete.")
+                    logging.debug("[run_itviec_scraper] Complete.")
                     break
                     
     except Exception as e:
        logging.error(f'[run_itviec_scraper] Error: {e}')
     finally:
-        if page:
-            await page.close()
-        if context:
-            await context.close()
-        if browser:
-            await browser.close()
+        await browser.close()
                     
-    print(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
+    logging.debug(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
     return all_jobs
 
 
@@ -248,6 +250,59 @@ async def run_itviec_scraper(keyword: str):
 def process_all_at_once(list_of_dicts):
     formatted_input = json.dumps(list_of_dicts, ensure_ascii=False, indent=2)
     max_retries = 2
+
+    # Initialize Groq LLM to relabel job title
+    llm = ChatGroq(
+        model_name="llama-3.3-70b-versatile",
+        temperature=0,
+        api_key= os.environ.get('GROQ_API_KEY')
+    )
+
+    # Define structure of data and format that the AI model should output
+    class JobCategorization(BaseModel):
+        job_id: Union[str, int] = Field(description="The unique identifier for the job post provided in the input")
+        job_label: Literal[
+            "Data Analyst",
+            "Data Engineer",
+            "Data Scientist",
+            "Other Data Job",
+            "None"
+        ] = Field(description="Best fit category.")
+
+    # Define the final output structure as it is expect to process multiple title as once
+    class JobCategorizationList(BaseModel):
+      """A collection of categorized job postings."""
+      jobs: List[JobCategorization] = Field(description = "All categorized jobs")
+
+    # Define the expected JSON structure
+    structured_llm = llm.with_structured_output(JobCategorizationList)
+
+    # Create Prompt to prevent error in categorizing titles
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """Bạn là chuyên gia phân loại job dữ liệu.
+    Chỉ xuất dữ liệu qua hàm JobCategorizationList. KHÔNG giải thích.
+
+    CHỈ SỬ DỤNG các nhãn sau: "Data Analyst", "Data Engineer", "Data Scientist", "Other Data Job", "None".
+
+    QUY TẮC:
+    1. "Data Scientist": AI/ML Engineer, Computer Vision, NLP, LLM. (Trừ Manager/Head), Thị giác máy tính.
+    2. "Data Engineer": Data/Database Engineer, Architect, SQL Dev, DBA hệ thống.
+    3. "Data Analyst": BI, Data Analyst. 'Business Analyst' chỉ chọn nếu có: SQL, Tableau, PowerBI, Analytics.
+    4. "Other Data Job": Manager/Head/Director Data, Data Governance, Quality, Reviewer, Coordinator.
+    5. "None": BA đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' thì đều là None
+
+    VÍ DỤ OUTPUT MẪU (TUÂN THỦ TUYỆT ĐỐI):
+    {{
+      "jobs": [
+        {{ "job_id": "id_1", "job_label": "Data Scientist" }},
+        {{ "job_id": "id_2", "job_label": "Data Engineer" }}
+      ]
+    }}"""),
+        ("user", "Hãy phân loại danh sách công việc sau, đảm bảo output đầy đủ và đúng định dạng:\n{input_data}")
+    ])
+
+    # Create the chain that guarantees JSON output
+    chain = prompt | structured_llm
 
     for attempt in range(max_retries+1):
       try:
