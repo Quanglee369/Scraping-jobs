@@ -199,6 +199,22 @@ df_master['label_id'] = df_master['label_name'].map(label_dim_dict)
 # Cleaning other unecessary columns to update data
 df_master.drop(columns = ['date_view', 'emp_raw', 'last_seen', 'location_name', 'label_name'], inplace=True)
 
+# Check column types - look for 'float64' where it should be 'int'
+logging.warning(f"DATAFRAME TYPES:\n{df_master.dtypes}")
+
+# Check for any unexpectedly large values in the ID columns
+numeric_ids = ['location_id', 'label_id', 'emp_id', 'created_on_id', 'last_seen_id']
+for col in numeric_ids:
+    # Look for values exceeding the 32-bit integer limit
+    too_large = df_master[df_master[col] > 2147483647]
+    if not too_large.empty:
+        logging.error(f"⚠️ Column {col} has values too large for INT!")
+        logging.error(too_large[[col]].head())
+    
+    # Check for NaNs that turn Integers into Floats
+    if df_master[col].isnull().any():
+        logging.error(f"⚠️ Column {col} contains NaN values!")
+
 # Begin to update fact_job_postings table
 update_fact_job_postings = df_master.to_dict(orient='records')
 with Session() as session:
