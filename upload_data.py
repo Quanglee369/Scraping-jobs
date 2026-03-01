@@ -106,7 +106,7 @@ class SkillDim(Base):
 
 class FactJobPosting(Base):
   __tablename__ = 'fact_job_postings'
-  job_id = Column(Integer, primary_key=True)
+  job_id = Column(Text, primary_key=True)
   job_title = Column(Text, nullable=False)
   is_expired = Column(Boolean, nullable=False, default=False)
   job_link = Column(Text, nullable=False, unique=True)
