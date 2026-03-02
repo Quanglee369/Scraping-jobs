@@ -91,9 +91,9 @@ for i in chunking(input_ai_itviec):
 print('[AI relabeling] Successfully relabel data using AI')
 
 # Merge all AI output into a dictionary
-labeled_cv_cleaned = {key:value for i in labeled_cv for key, value in i.items()}
-labeled_vn_cleaned = {key:value for i in labeled_vn for key, value in i.items()}
-labeled_itviec_cleaned = {key : value for i in labeled_itviec for key, value in i.items()}
+labeled_cv_cleaned = {i.get('job_id'): i.get('job_label') for i in labeled_cv}
+labeled_vn_cleaned = {i.get('job_id'): i.get('job_label') for i in labeled_vn}
+labeled_itviec_cleaned = {i.get('job_id'): i.get('job_label') for i in labeled_itviec}
 
 # Fill in data label result from AI output
 final_vn = fill_label(data = filtered_vn, label_data=labeled_vn_cleaned, platform = 'vietnamworks')
