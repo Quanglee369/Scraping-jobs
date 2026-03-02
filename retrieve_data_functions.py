@@ -255,7 +255,7 @@ def process_all_at_once(list_of_dicts):
     llm = ChatGroq(
         model_name="meta-llama/llama-4-scout-17b-16e-instruct",
         temperature=0,
-        api_key= os.environ.get('GROQ_API_KEY'), retry_on_rate_limit = True, retry_after_rate_limit = 60
+        api_key= os.environ.get('GROQ_API_KEY')
     )
 
     # Define structure of data and format that the AI model should output
