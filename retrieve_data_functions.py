@@ -251,14 +251,22 @@ async def run_itviec_scraper(keyword: str):
                           break
                   else:
                       logging.debug("[run_itviec_scraper] Complete.")
+                      try:
+                          await page.unroute("**/*", behavior='ignoreErrors')
+                      except:
+                          pass
                       break
                       
     except Exception as e:
        logging.error(f'[run_itviec_scraper] Error: {e}')
     finally:
       if page and not page.is_closed():
-        await page.unroute_all(behavior='ignoreErrors')
+        try:
+          await page.unroute_all(behavior='ignoreErrors')
+        except Exception as e:
+          pass
       if browser:
+        await asyncio.sleep(0.5)
         await browser.close()
                     
     logging.debug(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
