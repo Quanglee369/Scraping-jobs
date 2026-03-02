@@ -30,6 +30,7 @@ async def main():
     for i in keywords:
         result = await run_itviec_scraper(i)
         data_itviec.append(result)
+        await asyncio.sleep(2)
     print('[itviec_scraper] Successfully extract data from itviec')
 
     async with aiohttp.ClientSession() as session:
