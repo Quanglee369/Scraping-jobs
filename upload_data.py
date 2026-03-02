@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, Column, Integer, Text, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.dialects.postgresql import insert
 from sklearn.metrics.pairwise import cosine_similarity
-from clean_data_functions import prep_data_dim, fast_remove_accents
+from clean_data_functions import prep_data_dim, fast_remove_accents, safe_literal_eval
 
 # Configure logging
 logging.basicConfig(
@@ -51,6 +51,9 @@ for i in range(len(cosine_sim)):
 # Drop duplicate jobs
 df_master.drop(index = list(drop_index), axis = 0, inplace= True)
 
+# Convert string into list for the skill column
+df_master['skills'] = df_master['skills].apply(safe_literal_eval)
+
 # Convert date into ISO8601 format
 df_master['date_view']= pd.to_datetime(df_master['date_view'], utc=True, format = 'ISO8601').dt.tz_convert('Asia/Ho_Chi_Minh').dt.date
 
@@ -67,6 +70,7 @@ df_master.rename(columns = {'label': 'label_name', 'emp_name': 'emp_raw'}, inpla
 df_skills = df_master[['job_id', 'skills']].explode('skills').reset_index(drop=True)
 df_skills['jobskill_id'] = df_skills['skills'].astype(str) + df_skills['job_id'].astype(str)
 df_skills.rename(columns = {'skills': 'skill_raw'}, inplace=True)
+df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
 
 df_master = df_master.drop(columns='skills')
 
