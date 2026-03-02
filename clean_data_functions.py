@@ -243,10 +243,12 @@ def prep_data_dim(data, collist):
     logging.error('[prep_data_dim] Input data or columns list is not valid')
     return None
   results = []
+
   for i in collist:
+    unique_vals = data[i].dropna().unique()
     if i in ['date_view', 'last_seen']:
-      results.append([{'actual_date': x} for x in data[i].unique()])
+      results.append([{'actual_date': x} for x in unique_vals])
     else:
-      results.append([{i: x} for x in data[i].unique()])
+      results.append([{i: x} for x in unique_vals if x.strip() != ''])
   return results
 
