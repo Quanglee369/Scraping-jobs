@@ -171,7 +171,7 @@ def extract_skills_from_jd(job_list):
   for job_entry in job_list:
       for job_id, jd in job_entry.items():
            if not jd:
-              results.append({job_id: []})
+              results.append({'job_id': job_id, 'skills': []})
               continue
 
            # Find all matching key word in jd
