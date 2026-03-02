@@ -9,7 +9,7 @@ from clean_data_functions import filter_relevant, remove_duplicate, extract_skil
 
 # Configure logging
 logging.basicConfig(
-    level = logging.WARNING,
+    level = logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("scraper_debug.log"),
