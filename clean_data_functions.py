@@ -254,3 +254,12 @@ def prep_data_dim(data, collist):
       results.append([{i: x} for x in unique_vals if x.strip() != '' and x.lower() != 'nan'])
   return results
 
+# [FUNCTION] Convert the string representation back to a Python list
+def safe_literal_eval(val):
+    try:
+        if isinstance(val, str) and val.startswith('['):
+            return ast.literal_eval(val)
+        return val
+    except:
+        return []
+
