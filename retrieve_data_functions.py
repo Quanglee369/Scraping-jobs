@@ -253,9 +253,9 @@ def process_all_at_once(list_of_dicts):
 
     # Initialize Groq LLM to relabel job title
     llm = ChatGroq(
-        model_name="llama-3.3-70b-versatile",
+        model_name="meta-llama/llama-4-scout-17b-16e-instruct",
         temperature=0,
-        api_key= os.environ.get('GROQ_API_KEY')
+        api_key= os.environ.get('GROQ_API_KEY'), retry_on_rate_limit = True, retry_after_rate_limit = 60
     )
 
     # Define structure of data and format that the AI model should output
@@ -315,7 +315,11 @@ def process_all_at_once(list_of_dicts):
         logging.warning(f'[process_all_at_once] Atempt {attempt + 1} failed. Error: {e}')
 
         if attempt < max_retries:
-          time.sleep(5**attempt)
+          if '429' in str(e) or 'rate limit' in str(e).lower():
+            logging.info(f'[process_all_at_once] Retrying after hitting rate limit. Attempt {attempt + 1} of {max_retries}.')
+            time.sleep(60) # Wait 60 seconds before retrying
+          else:
+            time.sleep(5**attempt)
           continue
         else:
           logging.error(f'[process_all_at_once] Unable to retrieve result from AI, error: {e}')
