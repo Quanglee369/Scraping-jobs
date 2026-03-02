@@ -202,57 +202,57 @@ async def run_itviec_scraper(keyword: str):
     try:
         # Initialize Playwright Stealth
         async with stealth.use_async(async_playwright()) as p:
-            browser = await p.chromium.launch(
-               headless=True,
-               args=["--disable-blink-features=AutomationControlled",
-                     "--no-sandbox",
-                     "--disable-gpu",
-                     "--disable-dev-shm-usage",
-                     "--disable-extensions"])
-            # Configure viewport to mimic user behavior
-            context = await browser.new_context(viewport={'width': 1920, 'height': 1080})
-            page = await context.new_page()
-
-            # Apply speed up function
-            await apply_speedup(page)
-
-            url = f"https://itviec.com/it-jobs/{clean_keyword}"
-            print(f"[run_itviec_scraper] Accessing: {url}")
-            await page.goto(url, wait_until="domcontentloaded")
-
-            # Loop through all page until there is no page left for the keyword
-            page_count = 1
-            while True:
-                logging.debug(f"[run_itviec_scraper] Processing page {page_count}...")
-                jobs_on_page = await extract_page_data_itviec(page)
-                all_jobs.extend(jobs_on_page)
-                logging.debug(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
-
-                # Save current page number
-                current_page_el = await page.query_selector(".page.current")
-                if not current_page_el:
-                    break
-                old_page_num = await current_page_el.inner_text()
-
-                # Move to next page
-                next_button = await page.query_selector('a[rel="next"]')
-                if next_button:
-                    await next_button.click()
-                    page_count += 1
-
-                    # Check if moved to next page is successful by comparing current page number with old page number
-                    try:
-                        await page.wait_for_function(
-                            f"document.querySelector('.page.current').innerText !== '{old_page_num}'",
-                            timeout=7000
-                        )
-                    except Exception:
-                        logging.warning("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
-                        break
-                else:
-                    logging.debug("[run_itviec_scraper] Complete.")
-                    break
-                    
+              browser = await p.chromium.launch(
+                 headless=True,
+                 args=["--disable-blink-features=AutomationControlled",
+                       "--no-sandbox",
+                       "--disable-gpu",
+                       "--disable-dev-shm-usage",
+                       "--disable-extensions"])
+              # Configure viewport to mimic user behavior
+              context = await browser.new_context(viewport={'width': 1920, 'height': 1080})
+              page = await context.new_page()
+  
+              # Apply speed up function
+              await apply_speedup(page)
+  
+              url = f"https://itviec.com/it-jobs/{clean_keyword}"
+              print(f"[run_itviec_scraper] Accessing: {url}")
+              await page.goto(url, wait_until="domcontentloaded")
+  
+              # Loop through all page until there is no page left for the keyword
+              page_count = 1
+              while True:
+                  logging.debug(f"[run_itviec_scraper] Processing page {page_count}...")
+                  jobs_on_page = await extract_page_data_itviec(page)
+                  all_jobs.extend(jobs_on_page)
+                  logging.debug(f"[run_itviec_scraper] Processed {len(jobs_on_page)} job(s).")
+  
+                  # Save current page number
+                  current_page_el = await page.query_selector(".page.current")
+                  if not current_page_el:
+                      break
+                  old_page_num = await current_page_el.inner_text()
+  
+                  # Move to next page
+                  next_button = await page.query_selector('a[rel="next"]')
+                  if next_button:
+                      await next_button.click()
+                      page_count += 1
+  
+                      # Check if moved to next page is successful by comparing current page number with old page number
+                      try:
+                          await page.wait_for_function(
+                              f"document.querySelector('.page.current').innerText !== '{old_page_num}'",
+                              timeout=7000
+                          )
+                      except Exception:
+                          logging.warning("[run_itviec_scraper] Timeout ! There might not be any page left to process.")
+                          break
+                  else:
+                      logging.debug("[run_itviec_scraper] Complete.")
+                      break
+                      
     except Exception as e:
        logging.error(f'[run_itviec_scraper] Error: {e}')
     finally:
