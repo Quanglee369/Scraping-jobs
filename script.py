@@ -77,20 +77,17 @@ for i, u in zip(filtered_cv, alljdcv):
 labeled_cv = []
 for i in chunking(input_ai_cv):
   labeled_cv.extend(process_all_at_once(i))
-  time.sleep(25) # Adding a delay after each loop prevent overloading the API
-time.sleep(10) # Delay after each batch to reset limit
+  time.sleep(30) # Adding a delay after each loop prevent overloading the API
 
 labeled_vn = []
 for i in chunking(input_ai_vn):
   labeled_vn.extend(process_all_at_once(i))
-  time.sleep(25)
-time.sleep(10)
+  time.sleep(30)
 
 labeled_itviec = []
 for i in chunking(input_ai_itviec):
   labeled_itviec.extend(process_all_at_once(i))
-  time.sleep(25)
-time.sleep(10)
+  time.sleep(30)
 print('[AI relabeling] Successfully relabel data using AI')
 
 # Merge all AI output into a dictionary

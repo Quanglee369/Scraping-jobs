@@ -10,7 +10,9 @@ from datetime import timedelta, datetime
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
 from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 from typing import List, Literal, Union
 import os
@@ -251,12 +253,28 @@ def process_all_at_once(list_of_dicts):
     formatted_input = json.dumps(list_of_dicts, ensure_ascii=False, indent=2)
     max_retries = 2
 
+    models = ['arcee-ai/trinity-mini:free', 
+          'openai/gpt-oss-20b:free', 
+          'google/gemma-3-27b-it:free',
+          'openai/gpt-oss-120b:free', 
+          'meta-llama/llama-3.3-70b-instruct:free', 
+          'arcee-ai/trinity-large-preview:free']
+    
     # Initialize Groq LLM to relabel job title
     llm = ChatGroq(
         model_name="meta-llama/llama-4-scout-17b-16e-instruct",
         temperature=0,
         api_key= os.environ.get('GROQ_API_KEY')
-    )
+    ).bind(response_format = {"type": "json_object"})
+
+    for i in models:
+       subllm = ChatOpenAI(
+        api_key = os.environ.get('OPEN_ROUTER_API_KEY'),
+        model_name=i,
+        temperature = 0
+       ).bind(response_format = {'type': 'json_object'})
+
+       llm = llm.with_fallbacks([subllm])
 
     # Define structure of data and format that the AI model should output
     class JobCategorization(BaseModel):
@@ -275,21 +293,27 @@ def process_all_at_once(list_of_dicts):
       jobs: List[JobCategorization] = Field(description = "All categorized jobs")
 
     # Define the expected JSON structure
-    structured_llm = llm.with_structured_output(JobCategorizationList)
-
+    parser = JsonOutputParser(pydantic_object=JobCategorizationList)
+    
     # Create Prompt to prevent error in categorizing titles
     prompt = ChatPromptTemplate.from_messages([
         ("system", """Bạn là chuyên gia phân loại job dữ liệu.
-    Chỉ xuất dữ liệu qua hàm JobCategorizationList. KHÔNG giải thích.
+    Chỉ xuất dữ liệu qua hàm JobCategorizationList
+    KHÔNG giải thích, KHÔNG thêm text ngoài JSON.
+
+    Hãy tuân thủ cấu trúc sau:
+    {{format_instructions}}
 
     CHỈ SỬ DỤNG các nhãn sau: "Data Analyst", "Data Engineer", "Data Scientist", "Other Data Job", "None".
+    KHÔNG ĐƯỢC SỬ DỤNG nhãn khác trong bất cứ trường hợp nào
 
     QUY TẮC:
     1. "Data Scientist": AI/ML Engineer, Computer Vision, NLP, LLM. (Trừ Manager/Head), Thị giác máy tính.
     2. "Data Engineer": Data/Database Engineer, Architect, SQL Dev, DBA hệ thống.
-    3. "Data Analyst": BI, Data Analyst. 'Business Analyst' chỉ chọn nếu có: SQL, Tableau, PowerBI, Analytics.
+    3. "Data Analyst": BI, Data Analyst. 
+    LƯU Ý RIÊNG CHO BA: 'Business Analyst' CHỈ được chọn là "Data Analyst" nếu tiêu đề có chứa ÍT NHẤT MỘT công cụ kỹ thuật: SQL, Tableau, PowerBI, Python, hoặc R. Nếu tiêu đề chỉ có chữ "Phân tích" hoặc "Analytics" chung chung mà không có công cụ, hãy xếp vào "None".
     4. "Other Data Job": Manager/Head/Director Data, Data Governance, Quality, Reviewer, Coordinator.
-    5. "None": BA đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' thì đều là None
+    5. "None": BA (Business ) đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' thì đều là None
 
     VÍ DỤ OUTPUT MẪU (TUÂN THỦ TUYỆT ĐỐI):
     {{
@@ -298,26 +322,28 @@ def process_all_at_once(list_of_dicts):
         {{ "job_id": "id_2", "job_label": "Data Engineer" }}
       ]
     }}"""),
-        ("user", "Hãy phân loại danh sách công việc sau, đảm bảo output đầy đủ và đúng định dạng:\n{input_data}")
+        ("user", "Hãy phân loại danh sách công việc sau, đảm bảo output đầy đủ và đúng định dạng JSON:\n{input_data}")
     ])
 
     # Create the chain that guarantees JSON output
-    chain = prompt | structured_llm
+    chain = prompt | llm | parser
 
     for attempt in range(max_retries+1):
       try:
-        result = chain.invoke({"input_data": formatted_input})
-        if not result or not hasattr(result, 'jobs') or len(list_of_dicts) != len(result.jobs):
+        result = chain.invoke({"input_data": formatted_input,
+                               "format_instructions": parser.get_format_instructions()})
+        data = result.get('jobs')
+        if not data or len(list_of_dicts) != len(data):
           raise ValueError('Incomplete outputs !')
 
-        return [{job.job_id : job.job_label for job in result.jobs}]
+        return data
       except Exception as e:
         logging.warning(f'[process_all_at_once] Atempt {attempt + 1} failed. Error: {e}')
 
         if attempt < max_retries:
           if '429' in str(e) or 'rate limit' in str(e).lower():
             logging.info(f'[process_all_at_once] Retrying after hitting rate limit. Attempt {attempt + 1} of {max_retries}.')
-            time.sleep(60) # Wait 60 seconds before retrying
+            time.sleep(20) # Wait 20 seconds before retrying
           else:
             time.sleep(5**attempt)
           continue
@@ -326,7 +352,7 @@ def process_all_at_once(list_of_dicts):
           return {}
 
 # [FUNCTION] Chunking request sending to AI model with delay of 30 second prevent overloading the model
-def chunking(data, min_size = 20):
+def chunking(data, min_size = 40):
   batch = []
   total = len(data)
   i = 0

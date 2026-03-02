@@ -5,6 +5,7 @@ requests
 httpx
 aiohttp
 langchain-groq
+langchain_openai
 pydantic
 sqlalchemy
 psycopg2-binary
