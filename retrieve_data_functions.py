@@ -92,10 +92,13 @@ async def fetch_job_headers(session, keyword: str, platform: str):
 # [FUNCTION] Eliminate loading unnecessary resources (image, stylesheet, font, etc.)
 async def apply_speedup(page):
     async def intercept(route):
-        if route.request.resource_type in ["image", "media"]:
-            await route.abort()
-        else:
-            await route.continue_()
+      try:
+          if route.request.resource_type in ["image", "media"]:
+              await route.abort()
+          else:
+              await route.continue_()
+      except:
+        pass
     await page.route("**/*", intercept)
 
 # [FUNCTION] Extract jobs information from a job card in ITviet website
@@ -249,6 +252,9 @@ async def run_itviec_scraper(keyword: str):
     except Exception as e:
        logging.error(f'[run_itviec_scraper] Error: {e}')
     finally:
+      if page:
+        await page.unroute_all(behavior='ignoreErrors')
+      if browser:
         await browser.close()
                     
     logging.debug(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
