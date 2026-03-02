@@ -93,10 +93,14 @@ async def fetch_job_headers(session, keyword: str, platform: str):
 async def apply_speedup(page):
     async def intercept(route):
       try:
+          if route.request.resource_type in ["document", "script"]:
+            await route.continue_()
+            return 
+            
           if route.request.resource_type in ["image", "media", "font"]:
-              await route.abort()
+            await route.abort()
           else:
-              await route.continue_()
+            await route.continue_()
       except Exception:
         pass
     await page.route("**/*", intercept)
