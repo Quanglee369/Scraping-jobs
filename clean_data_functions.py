@@ -249,6 +249,6 @@ def prep_data_dim(data, collist):
     if i in ['date_view', 'last_seen']:
       results.append([{'actual_date': x} for x in unique_vals])
     else:
-      results.append([{i: x} for x in unique_vals if x.strip() != ''])
+      results.append([{i: x} for x in unique_vals if x.strip() != '' and x.lower() != 'nan'])
   return results
 

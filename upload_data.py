@@ -202,8 +202,6 @@ df_master.drop(columns = ['date_view', 'emp_raw', 'last_seen', 'location_name', 
 # Check column types - look for 'float64' where it should be 'int'
 logging.warning(f"DATAFRAME TYPES:\n{df_master.dtypes}")
 
-
-
 # Check for NaNs in label_id (can be due to exceed AI limit) that turn Integers into Floats, fill nan with 0
 if df_master['label_id'].isnull().any():
   nan_count = df_master['label_id'].isnull().sum()
