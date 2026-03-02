@@ -205,6 +205,8 @@ def fill_label(data, label_data, platform: str):
   for i in temp_data:
     if i.get(job_id) in label_data:
       i['label'] = label_data.get(i.get(job_id))
+    elif i.get('label') == '':
+      i['label'] = 'None'
   return temp_data
 
 # [FUNCTION] Remove accents, convert Vietnamese into ASCII format
