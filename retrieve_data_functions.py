@@ -93,6 +93,9 @@ async def fetch_job_headers(session, keyword: str, platform: str):
 async def apply_speedup(page):
     async def intercept(route):
       try:
+          if page.is_closed():
+            return
+            
           if route.request.resource_type in ["document", "script"]:
             await route.continue_()
             return 
@@ -103,6 +106,7 @@ async def apply_speedup(page):
             await route.continue_()
       except Exception:
         pass
+    await page.unroute("**/*", behavior='ignoreErrors')
     await page.route("**/*", intercept)
 
 # [FUNCTION] Extract jobs information from a job card in ITviet website
