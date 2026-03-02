@@ -106,12 +106,13 @@ async def extract_card_data(card):
       )
   # Search for elements that contain specific data
   company_task = card.query_selector("a.text-rich-grey")
-  location_task = card.query_selector("div[title]")
+  location_task = card.query_selector("div.text-rich-grey[title]")
   date_task = card.query_selector(".small-text.text-dark-grey")
   skills_task = card.query_selector_all(".itag")
+  skills_tooltip_task = card.query_selector("div[data-bs-original-title]")
 
-  company_el, location_el, date_el, skill_elements = await asyncio.gather(
-        company_task, location_task, date_task, skills_task
+  company_el, location_el, date_el, skill_elements, skill_tooltip = await asyncio.gather(
+        company_task, location_task, date_task, skills_task, skills_tooltip_task
     )
 
   # Get company name
@@ -122,7 +123,15 @@ async def extract_card_data(card):
 
   # Get skills
   skills = await asyncio.gather(*[s.inner_text() for s in skill_elements])
+  
+  # Get skills in tooltip
+  skill_tooltip = await skill_tooltip.get_attribute("data-bs-original-title") if skill_tooltip else ""
+  skill_tooltip_cleaned = [x.strip() for x in skill_tooltip.split(",")] if skill_tooltip else []
 
+  # Combine skills prevent duplicate and clear out trash data
+  final_skill = list(set(skills + skill_tooltip_cleaned))
+  final_skill =  [s for s in final_skill if not s.startswith('+')]
+  
   # Get date
   rawtext = await date_el.inner_text() if date_el else "N/A"
   rawtext = rawtext.replace('\n', ' ').strip()
@@ -144,8 +153,6 @@ async def extract_card_data(card):
       postingdate = current_date.date()
 
   # Prepare data for hashing for job id
-  skill_for_hash = ''.join(skills)
-
   components = [
     str(data['url']).strip().lower()
     ]
@@ -161,7 +168,7 @@ async def extract_card_data(card):
         "posting_date": postingdate,
         "company": company.strip(),
         'location': location.strip(),
-        "skills": list(skills)
+        "skills": final_skill
     }
 
 # [FUNCTION] Extract job data from each page
