@@ -252,7 +252,7 @@ async def run_itviec_scraper(keyword: str):
     except Exception as e:
        logging.error(f'[run_itviec_scraper] Error: {e}')
     finally:
-      if page:
+      if page and not page.is_closed():
         await page.unroute_all(behavior='ignoreErrors')
       if browser:
         await browser.close()
