@@ -92,21 +92,25 @@ async def fetch_job_headers(session, keyword: str, platform: str):
 # [FUNCTION] Eliminate loading unnecessary resources (image, stylesheet, font, etc.)
 async def apply_speedup(page):
     async def intercept(route):
-      try:
-          if page.is_closed():
-            return
+        try:
+            if page.is_closed():
+                return
             
-          if route.request.resource_type in ["document", "script"]:
-            await route.continue_()
-            return 
+            # Allow essential document and scripts for fingerprinting/human-like behavior
+            if route.request.resource_type in ["document", "script"]:
+                await route.continue_()
+                return 
             
-          if route.request.resource_type in ["image", "media", "font"]:
-            await route.abort()
-          else:
-            await route.continue_()
-      except Exception:
-        pass
-    await page.unroute("**/*", behavior='ignoreErrors')
+            # Block heavy non-essentials to prevent hanging requests [cite: 2026-01-09]
+            if route.request.resource_type in ["image", "media", "font"]:
+                await route.abort()
+            else:
+                await route.continue_()
+        except Exception:
+            pass
+            
+    # FIX: unroute_all supports 'behavior', unroute does not
+    await page.unroute_all(behavior='ignoreErrors') 
     await page.route("**/*", intercept)
 
 # [FUNCTION] Extract jobs information from a job card in ITviet website
@@ -256,7 +260,7 @@ async def run_itviec_scraper(keyword: str):
                   else:
                       logging.debug("[run_itviec_scraper] Complete.")
                       try:
-                          await page.unroute("**/*", behavior='ignoreErrors')
+                          await page.unroute_all(behavior='ignoreErrors')
                       except:
                           pass
                       break
