@@ -52,7 +52,7 @@ for i in range(len(cosine_sim)):
 df_master.drop(index = list(drop_index), axis = 0, inplace= True)
 
 # Convert string into list for the skill column
-df_master['skills'] = df_master['skills].apply(safe_literal_eval)
+df_master['skills'] = df_master['skills'].apply(safe_literal_eval)
 
 # Convert date into ISO8601 format
 df_master['date_view']= pd.to_datetime(df_master['date_view'], utc=True, format = 'ISO8601').dt.tz_convert('Asia/Ho_Chi_Minh').dt.date
