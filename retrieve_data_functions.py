@@ -349,10 +349,10 @@ def process_all_at_once(list_of_dicts):
           continue
         else:
           logging.error(f'[process_all_at_once] Unable to retrieve result from AI, error: {e}')
-          return {}
+          return [{'job_id': i['job_id'], 'job_label': 'None'} for i in list_of_dicts]
 
 # [FUNCTION] Chunking request sending to AI model with delay of 30 second prevent overloading the model
-def chunking(data, min_size = 40):
+def chunking(data, min_size = 30):
   batch = []
   total = len(data)
   i = 0
