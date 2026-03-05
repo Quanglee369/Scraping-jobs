@@ -12,5 +12,7 @@ This is and end to end project from scraping jobs data, processing, relabelling 
 
 ### - **Supabase (Postgresql) to store data:**
    * Design database with star schema to handle the analytical purposes
+
 ![image](Database schema.png)
+
    * Utilizing cron jobs to check for expired jobs
