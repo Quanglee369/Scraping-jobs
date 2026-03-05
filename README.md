@@ -16,7 +16,7 @@ This is and End-to-End project from scraping data-related jobs, processing, AI r
 
    * Design database with star schema to handle the analytical purposes
      
-!(database_schema.png)
+!("database_schema.png")
 
    * Utilizing cron jobs to check for expired jobs
 
