@@ -1,9 +1,7 @@
 # Scraping-jobs
 This is and end to end project from scraping jobs data, processing, relabelling using AI and push data into SQL tables, visualizing data base one the tables
 
-# Libraries used: 
-
-## Tech Stack:
+# Tech Stack:
 
 ### - **Python (with the following libraries):**
    * requests, httpx, aiohttp for pulling data from websites' apis
@@ -14,6 +12,5 @@ This is and end to end project from scraping jobs data, processing, relabelling 
 
 ### - **Supabase (Postgresql) to store data:**
    * Design database with star schema to handle the analytical purposes
-      
-   * ![image](Database schema.png)
+![image](Database schema.png)
    * Utilizing cron jobs to check for expired jobs
