@@ -5,6 +5,8 @@ This project is an automated end-to-end data pipeline designed to consolidate da
 
 The workflow encompasses web scraping, asynchronous data processing, AI-driven relabeling, and storage in a Supabase PostgreSQL database, with final visualization in Google Looker Studio.
 
+Dashboard can be viewed via this: [Link](https://lookerstudio.google.com/reporting/b432a1e5-281d-4bcd-a851-bd838ae45c2a)
+
 ## Tech Stack
 
 ### Python
