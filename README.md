@@ -16,3 +16,23 @@ This is and end to end project from scraping jobs data, processing, relabelling 
 !(Database schema.png)
 
    * Utilizing cron jobs to check for expired jobs
+
+
+
+# Scraping-jobs
+This is an end-to-end project...
+
+# Tech Stack
+
+### Python (with the following libraries):
+* requests, httpx, aiohttp...
+* playwright, playwright-stealth...
+* langchain-groq, langchain_openai...
+
+### Supabase (Postgresql) to store data:
+* Design database with star schema...
+
+!(Database schema.png)
+
+* Utilizing cron jobs to check for expired jobs
+
