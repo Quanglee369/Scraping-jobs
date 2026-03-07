@@ -12,7 +12,7 @@ def filter_relevant(data, platform: str):
   mh_words = ['data', 'phân tích', 'database', 'dữ liệu', 'ai', 'computer vision', 'thị giác máy tính', 'modeling', 'model', 'sql', 'intelligence']
 
   # Also define keywords that should not be present
-  nega_keyword = ['entry', 'kiểm toán','auditor','security', 'bảo mật', 'ib', 'sale', 'sales', 'full stack', 'backend', 'frontend', 'back-end', 'front-end', 'full-stack', 'web', 'software', 'soft ware', 'business']
+  nega_keyword = ['entry', 'kiểm toán','auditor','security', 'bảo mật', 'ib', 'sale', 'sales', 'full stack', 'backend', 'frontend', 'back-end', 'front-end', 'full-stack', 'web', 'software', 'android', 'ios', 'mobile', 'qa', 'business']
 
   # Each platform have a different way of naming key values so createing a dict to mapping based on platform of choice
   keys_for_platforms = {
