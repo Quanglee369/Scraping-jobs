@@ -1,5 +1,7 @@
 name: Daily Modular Scraper
-
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 on:
   schedule:
     # 01:00 UTC = 08:00 AM Vietnam Time (GMT+7)
