@@ -19,7 +19,6 @@ logging.basicConfig(
 )
 
 
-
 # Extract data from careerviet and vietnamworks using asyncio for speed
 async def main():
     platforms = {'careerviet': ['data analyst', 'data engineer', 'data scientist', 'ai', 'sql'],
@@ -66,8 +65,15 @@ filtered_cv, input_ai_cv = remove_duplicate(filtered_data_cv, platform= 'careerv
 
 # Extract skills from JD specifically for careerviet
 async def execute_extract_skills():
-    alljdcv = extract_skills_from_jd(await get_all_jobs(filtered_cv))
-    return alljdcv
+    try:
+        job = await get_all_jobs(filtered_cv)
+        if not job:
+            return []
+        alljdcv = extract_skills_from_jd(job)
+        return alljdcv
+    except Exception as e:
+        logging.error(f'[execute_extract_skills] Error when extracting skills from careerviet JDs, detail: {e}')
+        return []
 
 alljdcv = asyncio.run(execute_extract_skills())
 for i, u in zip(filtered_cv, alljdcv):
