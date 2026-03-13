@@ -19,14 +19,19 @@ import os
 
 
 # [FUNCTION] Fetch JD from each link, only apply to Careerviet as they do not have skill section in the job headers
-# Use asyncio.Semaphore at 20 requests each to prevent getting flagged
-async def fetch_jd_careerviet(client, item, sem = asyncio.Semaphore(20)):
+# Use asyncio.Semaphore at 10 requests each to prevent getting flagged
+async def fetch_jd_careerviet(client, item, sem = asyncio.Semaphore(10)):
   # Replace locale as the default locale in api is "en" which is not accessible
   link = item.get('job_link').replace('https://careerviet.vn/en/', 'https://careerviet.vn/vi/')
   job_id = item.get('job_id')
+  headers = {
+    'Origin': 'https://careerviet.vn',
+    'Referer': 'https://careerviet.vn/',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0'
+} # Adding headers to prevent getting flagged
   async with sem:
     try:
-      response = await client.get(link, timeout = 10)
+      response = await client.get(link, headers = headers, timeout = 10)
       # Filter the JD from html response (converted to text)
       if '__next_f.push([1,"{\\"@context\\"' in response.text:
         clean_text = response.text.split('__next_f.push([1,"{\\"@context\\')[1].split('Ngành nghề:')[0].split('description')[1]
