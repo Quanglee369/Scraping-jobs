@@ -183,7 +183,7 @@ def extract_skills_from_jd(job_list):
            found_skills = pattern.findall(jd)
 
            # Standardize by removing duplicate and normalizing the words
-           unique_skills = sorted(list(set([s.strip().upper() for s in found_skills])))
+           unique_skills = sorted(list(set([s.strip() for s in found_skills])))
 
            results.append({'job_id': job_id, 'skills': unique_skills})
 
