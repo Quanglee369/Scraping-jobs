@@ -168,7 +168,12 @@ def extract_skills_from_jd(job_list):
   pattern = re.compile(r'\b(' + '|'.join(map(re.escape, all_skills)) + r')\b', re.IGNORECASE)
 
   results = []
+  if not job_list or not isinstance(job_list,list):
+    return results
+    
   for job_entry in job_list:
+      if not job_entry:
+        return results
       for job_id, jd in job_entry.items():
            if not jd:
               results.append({'job_id': job_id, 'skills': []})
