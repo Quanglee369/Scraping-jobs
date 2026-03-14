@@ -1,8 +1,10 @@
 import pandas as pd
 import asyncio
+import os
 import time
 import aiohttp 
 import logging
+from sqlalchemy import text, create_engine
 from retrieve_data_functions import fetch_job_headers, run_itviec_scraper, chunking, get_all_jobs, process_all_at_once
 from clean_data_functions import filter_relevant, remove_duplicate, extract_skills_from_jd, fill_label
 
@@ -58,10 +60,28 @@ filtered_data_cv = filter_relevant(careerviet, 'careerviet')
 filtered_data_itviec = filter_relevant(all_data_itviec, 'itviec')
 filtered_data_vn = filter_relevant(vietnamworks, 'vietnamworks')
 
+# Get unique job_id from database
+url = os.getenv('DATABRICKS_DB_URL')
+engine = create_engine(url, connect_args={"base_parameters": {"query_timeout": 30}})
+
+# Test the connection
+try:
+    engine.connect()
+    logging.info('[testing_database_connection] Connection Successful')
+except Exception as e:
+    logging.error(f'[testing_database_connection] Error when connecting to the database {e}')
+
+try:
+  unique_job_id = pd.read_sql_query(text("Select distinct job_id from fact_job_postings"), engine)
+except Exception as e:
+  unique_job_id = pd.DataFrame(columns=['job_id'])
+  logging.error(f'[get_current_job_id] Fail to retrieve current job_id, error: {e}. Will process all extracted job_id instead.')
+   
+
 # Remove duplicate data, prepare input data for AI relabling
-filtered_vn, input_ai_vn = remove_duplicate(filtered_data_vn, platform= 'vietnamworks')
-filtered_itviec, input_ai_itviec = remove_duplicate(filtered_data_itviec, platform= 'itviec')
-filtered_cv, input_ai_cv = remove_duplicate(filtered_data_cv, platform= 'careerviet')
+filtered_vn, input_ai_vn = remove_duplicate(filtered_data_vn, platform= 'vietnamworks', exist_job_id= unique_job_id)
+filtered_itviec, input_ai_itviec = remove_duplicate(filtered_data_itviec, platform= 'itviec', exist_job_id= unique_job_id)
+filtered_cv, input_ai_cv = remove_duplicate(filtered_data_cv, platform= 'careerviet', exist_job_id= unique_job_id)
 
 # Extract skills from JD specifically for careerviet
 async def execute_extract_skills():

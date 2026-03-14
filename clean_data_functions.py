@@ -3,6 +3,7 @@ import logging
 import copy
 import ast
 import pandas as pd
+from sqlalchemy import text
 
 # [FUNCTION] Filter out relevant job header, as the primary focus is data related job (data engineer, data scientist and dat analyst)
 def filter_relevant(data, platform: str):
@@ -63,9 +64,9 @@ def filter_relevant(data, platform: str):
 
 # [FUNCTION] Remove duplicated job based on id as job can be duplicated when searching for closely related position (example: Data Analysis might have duplicated job with Data Scientist)
 # Also label explicit title (title contain keywords like 'Data Analyst', ...)
-def remove_duplicate(job, platform: str):
+def remove_duplicate(job, platform: str, exist_job_id):
   # Each platform have a different way of naming key values so createing a dict to mapping based on platform of choice
-  seen_id = set()
+  seen_id = set(exist_job_id['job_id'])
   keys_for_platforms = {
       'careerviet': ['job_title', 'job_id'],
       'vietnamworks': ['jobTitle', 'jobId'],
@@ -199,9 +200,11 @@ def fill_label(data, label_data, platform: str):
   }
 
   clean_platform = platform.replace(' ', '').lower()
+  
   if clean_platform not in keys_for_platforms.keys():
-    return print(f'[fill_label] platform is not in the list : {keys_for_platforms.keys()}')
-
+    logging.error(f'[fill_label] platform is not in the list : {keys_for_platforms.keys()}')
+    return []
+  
   if not data or not label_data:
     logging.error('[fill_label] data invalid')
     return []
@@ -268,4 +271,148 @@ def safe_literal_eval(val):
         return val
     except:
         return []
+    
+def sync_fact_job_postings(df, engine):
+    if df.empty:
+        return
+
+    target_table = "fact_job_postings"
+    staging_table = f"staging_{target_table}"
+
+    # 1. Safety: Drop staging if it exists from a previous failed run
+    with engine.begin() as conn:
+        conn.execute(text(f"DROP TABLE IF EXISTS {staging_table}"))
+
+    # 2. Push to Staging with Batching (Fast)
+    try:
+        df.to_sql(
+            staging_table,
+            con=engine,
+            if_exists='replace',
+            index=False,
+            method='multi',
+            chunksize=1000
+        )
+        print('[sync_fact_job_postings] Successfully created staging table')
+
+    except Exception as e:
+        logging.error(f"[sync_fact_job_postings] Error in creating staging table, error: {e}")
+        return
+
+    # 3. Native MERGE (Handling Updates & Inserts)
+    try:
+        merge_sql = text(f"""
+            MERGE INTO {target_table} AS target
+            USING {staging_table} AS source
+            ON target.job_id = source.job_id
+            WHEN MATCHED THEN
+                UPDATE SET
+                    target.is_expired = source.is_expired,
+                    target.last_seen_id = source.last_seen_id
+            WHEN NOT MATCHED THEN
+                INSERT (job_id, job_title, is_expired, job_link, last_seen_id, location_id, label_id, emp_id, created_on_id)
+                VALUES (source.job_id, source.job_title, source.is_expired, source.job_link, source.last_seen_id,
+                        source.location_id, source.label_id, source.emp_id, source.created_on_id)
+        """)
+
+        with engine.begin() as conn:
+            conn.execute(merge_sql)
+            conn.execute(text(f"DROP TABLE {staging_table}"))
+
+        print(f"Successfully synced {target_table}")
+
+    except Exception as e:
+        logging.error(f'[sync_fact_job_postings] Error in merging with the main table, error {e}')
+        return
+
+def sync_fact_skill_fast(df, engine):
+    if df.empty:
+        return
+
+    target_table = "fact_skill"
+    staging_table = f"staging_{target_table}"
+
+
+    # 1. Clear staging for safety
+    with engine.begin() as conn:
+        conn.execute(text(f"DROP TABLE IF EXISTS {staging_table}"))
+
+    # 2. Bulk upload to staging
+    try:
+        df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
+        print('[sync_fact_skill_fast] Success updating staging table')
+    except Exception as e:
+        logging.error(f"[sync_fact_skill_fast] Error when updating staging table, error: {e}")
+        return
+    # 3. Fast "Not Exists" Insert
+    # This query only inserts rows where the combination of skill_id AND job_id doesn't exist yet
+    try:
+        insert_sql = text(f"""
+            INSERT INTO {target_table} (skill_id, job_id)
+            SELECT s.skill_id, s.job_id
+            FROM {staging_table} s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM {target_table} t
+                WHERE t.skill_id = s.skill_id
+                AND t.job_id = s.job_id
+            )
+        """)
+
+        with engine.begin() as conn:
+            conn.execute(insert_sql)
+            conn.execute(text(f"DROP TABLE {staging_table}"))
+
+        print(f"[sync_fact_skill_fast] Successfully synced {target_table}")
+    except Exception as e:
+        logging.error(f"[sync_fact_skill_fast] Error in updating main database, error: {e}")
+        return
+
+def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, engine):
+    """
+    df: The pandas DataFrame (e.g., location_dim_df)
+    target_table: The table name in Databricks
+    unique_key: The column to match on (e.g., 'location_name')
+    columns_to_update: List of columns to update if match found (excluding the ID)
+    """
+    if df.empty or len(columns_to_update) < 0:
+        raise ValueError('dataframe is empty or list of updated column is emtpy')
+
+    staging_table = f"staging_{target_table}"
+
+    with engine.begin() as conn:
+        conn.execute(text(f"DROP TABLE IF EXISTS {staging_table}"))
+
+    # 1. Push to Staging
+    try:
+        df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
+        print(f"[databricks_hybrid_upsert] Success updating {staging_table}")
+    except Exception as e:
+        logging.error(f"[databricks_hybrid_upsert] Failed to update staging table, error: {e}")
+        return
+    # 2. Build the MERGE query
+    # Logic: Match on unique_key. If exists, update metadata. If not, insert.
+    update_set_clause = ", ".join([f"target.{col} = source.{col}" for col in columns_to_update])
+    all_cols = set(columns_to_update + [unique_key])
+    insert_cols = ", ".join(all_cols)
+    insert_vals = ", ".join([f"source.{col}" for col in all_cols])
+
+    try:
+        merge_sql = text(f"""
+            MERGE INTO {target_table} AS target
+            USING {staging_table} AS source
+            ON target.{unique_key} = source.{unique_key}
+            WHEN MATCHED THEN
+                UPDATE SET {update_set_clause}
+            WHEN NOT MATCHED THEN
+                INSERT ({insert_cols}) VALUES ({insert_vals})
+        """)
+
+        with engine.begin() as conn:
+            conn.execute(merge_sql)
+            conn.execute(text(f"DROP TABLE {staging_table}"))
+
+        print(f"[databricks_hybrid_upsert] Successfully synced {target_table}")
+    except Exception as e:
+        logging.error(f"[databricks_hybrid_upsert] Fail to update main databse, error: {e}")
+        return
 

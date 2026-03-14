@@ -4,11 +4,9 @@ import pandas as pd
 from datetime import datetime
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sqlalchemy import create_engine, Column, Integer, Text, Boolean, ForeignKey, Date
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import text, create_engine
 from sklearn.metrics.pairwise import cosine_similarity
-from clean_data_functions import prep_data_dim, fast_remove_accents, safe_literal_eval
+from clean_data_functions import prep_data_dim, fast_remove_accents, safe_literal_eval, databricks_hybrid_upsert, sync_fact_job_postings, sync_fact_skill_fast
 
 # Configure logging
 logging.basicConfig(
@@ -75,59 +73,10 @@ df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
 df_master = df_master.drop(columns='skills')
 
 # Initiate sessions and connect to supabase database
-engine = create_engine(os.getenv('SUPABASE_DB_URL'))
-Session = sessionmaker(bind=engine)
+url = os.getenv('DATABRICKS_DB_URL')
+engine = create_engine(url, connect_args={"base_parameters": {"query_timeout": 30}})
 
-# Define tables schema
-Base = declarative_base()
-
-class LocationDim(Base):
-  __tablename__ = 'location_dim'
-  location_id = Column(Integer, primary_key=True, autoincrement=True)
-  location_name = Column(Text, nullable=False, unique=True)
-
-class DateDim(Base):
-  __tablename__ = 'date_dim'
-  date_id = Column(Integer, primary_key=True, autoincrement=True)
-  actual_date = Column(Date, nullable=False, unique=True)
-
-class LabelDim(Base):
-  __tablename__ = 'label_dim'
-  label_id = Column(Integer, primary_key=True, autoincrement=True)
-  label_name = Column(Text, nullable=False, unique=True)
-
-class EmpDim(Base):
-  __tablename__ = 'emp_dim'
-  emp_id = Column(Integer, primary_key=True, autoincrement=True)
-  emp_raw = Column(Text, nullable=False, unique=True)
-  emp_cleaned = Column(Text)
-
-class SkillDim(Base):
-  __tablename__ = 'skill_dim'
-  skill_id = Column(Integer, primary_key=True, autoincrement=True)
-  skill_raw = Column(Text, nullable=False, unique=True)
-  skill_cleaned = Column(Text)
-
-class FactJobPosting(Base):
-  __tablename__ = 'fact_job_postings'
-  job_id = Column(Text, primary_key=True)
-  job_title = Column(Text, nullable=False)
-  is_expired = Column(Boolean, nullable=False, default=False)
-  job_link = Column(Text, nullable=False, unique=True)
-
-  last_seen_id = Column(Integer, ForeignKey('date_dim.date_id'))
-  location_id = Column(Integer, ForeignKey('location_dim.location_id'), nullable=False)
-  label_id = Column(Integer, ForeignKey('label_dim.label_id'), nullable=False)
-  emp_id = Column(Integer, ForeignKey('emp_dim.emp_id'), nullable=False)
-  created_on_id = Column(Integer, ForeignKey('date_dim.date_id'))
-
-class FactSkill(Base):
-  __tablename__ = 'fact_skill'
-  jobskill_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-  skill_id = Column(Integer, ForeignKey('skill_dim.skill_id'), nullable=False)
-  job_id = Column(Text, ForeignKey('fact_job_postings.job_id'), nullable=False)
-
-# Prepare data to input into supabase database
+# Prepare data to input into databrick
 list_of_dim_cols = ['location_name', 'date_view', 'last_seen', 'label_name', 'emp_raw']
 results = prep_data_dim(data=df_master, collist=list_of_dim_cols)
 location_name = results[0]
@@ -143,109 +92,63 @@ skills = result_skills[0]
 
 # Test the connection
 try:
-  Session().connection()
-  print('[testing_db_connection] Successfully connect to database')
+    engine.connect()
+    print('[testing_database_connection] Connection Successful')
 except Exception as e:
-  logging.error(f'[database connection] Error in database connection, error: {e}')
+    print(f'[testing_database_connection] Error when connecting to the database {e}')
+
 
 # Create list of tasks to update dimensional data into the tables
-label_name_db =  insert(LabelDim).values(label).on_conflict_do_nothing()
-created_on_db = insert(DateDim).values(date_view).on_conflict_do_nothing()
-last_seen_db = insert(DateDim).values(last_seen).on_conflict_do_nothing()
-emp_raw_db = insert(EmpDim).values(emp_name).on_conflict_do_nothing()
-location_name_db = insert(LocationDim).values(location_name).on_conflict_do_nothing()
-skill_raw_db = insert(SkillDim).values(skills).on_conflict_do_nothing()
-
-task_list = [label_name_db, created_on_db, last_seen_db, emp_raw_db, location_name_db, skill_raw_db]
-
-
-# Update dimensional tables
-with Session() as session:
-  for i in task_list:
-    try:
-      session.execute(i)
-      session.commit()
-      print('[update_dim_data] Successfully update dimensional data into table')
-    except Exception as e:
-      session.rollback()
-      logging.error(f'Update dimensional data fail, error: {e}')
-    finally:
-      session.close()
-
-
-# Get the updated dimensional tables
-with Session() as session:
-  try:
-    emp_dim = session.query(EmpDim).all()
-    date_dim = session.query(DateDim).all()
-    label_dim = session.query(LabelDim).all()
-    location_dim = session.query(LocationDim).all()
-    skill_dim = session.query(SkillDim).all()
-  except Exception as e:
-    logging.error(f'[query_dim_data] Unable to query the dimensional data, error {e}')
+databricks_hybrid_upsert(df = location_name, target_table='location_dim', unique_key='location_name', columns_to_update=['location_name'], engine= engine)
+databricks_hybrid_upsert(df = date_view, target_table='date_dim', unique_key='actual_date', columns_to_update=['actual_date'], engine= engine)
+databricks_hybrid_upsert(df = last_seen, target_table='date_dim', unique_key='actual_date', columns_to_update=['actual_date'], engine= engine)
+databricks_hybrid_upsert(df = label, target_table='label_dim', unique_key='label_name', columns_to_update=['label_name'], engine= engine)
+databricks_hybrid_upsert(df = emp_name, target_table='emp_dim', unique_key='emp_raw', columns_to_update=['emp_raw'], engine= engine)
+databricks_hybrid_upsert(df = skills, target_table='skill_dim', unique_key='skill_raw', columns_to_update=['skill_raw'], engine= engine)
 
 
 # Prepare data for mapping and get ids from the newly updated dimensional tables
-emp_dim_dict = {i.emp_raw: i.emp_id for i in emp_dim} if emp_dim else {}
-date_dim_dict = {i.actual_date: i.date_id for i in date_dim} if date_dim else {}
-label_dim_dict = {i.label_name: i.label_id for i in label_dim} if label_dim else {}
-location_dim_dict = {i.location_name: i.location_id for i in location_dim} if location_dim else {}
-skill_dim_dict = {i.skill_raw: i.skill_id for i in skill_dim} if skill_dim else {}
+date_dim_dict = pd.read_sql_query("Select * from date_dim", engine)
+emp_dim_dict = pd.read_sql_query("Select * from emp_dim", engine)
+location_dim_dict = pd.read_sql_query("Select * from location_dim", engine)
+label_dim_dict = pd.read_sql_query("Select * from label_dim", engine)
+skill_dim_dict = pd.read_sql_query("Select * from skill_dim", engine)
 
+# Map the data for both fact_job_posting and fact_skill table
+update_fact_job_postings = (df_master
+    .merge(date_dim_dict, how='left', left_on='date_view', right_on='actual_date')
+    .drop(columns=['actual_date'])
+    .rename(columns= {'date_id': 'created_on_id'})
+    .merge(emp_dim_dict, how='left', left_on='emp_raw', right_on='emp_raw')
+    .merge(location_dim_dict, how='left', on='location_name')
+    .merge(label_dim_dict, how='left', left_on='label_name', right_on='label_name')
+    .merge(date_dim_dict, left_on='last_seen', right_on='actual_date')
+    .rename(columns={'date_id': 'last_seen_id'})
+    # Drop all the 'raw' columns used for joining in one go
+    .drop(columns=[
+        'date_view', 'actual_date', 'last_seen','emp_raw',
+        'emp_cleaned', 'location_name', 'label_name'
+    ])
+)
 
-# Map the data
-df_master['emp_id'] = df_master['emp_raw'].map(emp_dim_dict)
-df_master['created_on_id'] = df_master['date_view'].map(date_dim_dict)
-df_master['last_seen_id'] = df_master['last_seen'].map(date_dim_dict)
-df_master['location_id'] = df_master['location_name'].map(location_dim_dict)
-df_master['label_id'] = df_master['label_name'].map(label_dim_dict)
-
-# Cleaning other unecessary columns to update data
-df_master.drop(columns = ['date_view', 'emp_raw', 'last_seen', 'location_name', 'label_name'], inplace=True)
+update_fact_skill = (df_skills
+                .merge(skill_dim_dict, on = 'skill_raw', how='left')
+                .drop(columns=['skill_cleaned', 'skill_raw'])
+                .reset_index(drop=True)
+)
 
 # Check column types - look for 'float64' where it should be 'int'
-logging.warning(f"DATAFRAME TYPES:\n{df_master.dtypes}")
+logging.warning(f"DATAFRAME TYPES:\n{update_fact_job_postings.dtypes}")
 
 # Check for NaNs in label_id (can be due to exceed AI limit) that turn Integers into Floats, fill nan with 0
-if df_master['label_id'].isnull().any():
-  nan_count = df_master['label_id'].isnull().sum()
+if update_fact_job_postings['label_id'].isnull().any():
+  nan_count = update_fact_job_postings['label_id'].isnull().sum()
   logging.error(f"⚠️ Column label_id contains {nan_count} NaN values! Proceed to fill na")
 
-df_master['label_id'] = df_master['label_id'].fillna(0).astype(int)
+update_fact_job_postings['label_id'] = update_fact_job_postings['label_id'].fillna(0).astype(int)
 
 # Begin to update fact_job_postings table
-update_fact_job_postings = df_master.to_dict(orient='records')
-with Session() as session:
-  try:
-    batch_fact_job_postings = insert(FactJobPosting).values(update_fact_job_postings)
-    update_batch_fact_job_postings = batch_fact_job_postings.on_conflict_do_update(
-        index_elements = ['job_id'],
-        set_ = {
-            'last_seen_id': batch_fact_job_postings.excluded.last_seen_id,
-            "is_expired": batch_fact_job_postings.excluded.is_expired
-        }
-    )
-    session.execute(update_batch_fact_job_postings)
-    session.commit()
-    print('[update_fact_job_posting] Successfully update fact job posting table')
-  except Exception as e:
-    session.rollback()
-    logging.error(f'[update_fact_job_posting] Unable to update job postings, error {e}')
-
-# Mapping and removing columns to update fact_skill table
-df_skills['skill_id'] = df_skills['skill_raw'].map(skill_dim_dict)
-df_skills.drop(columns=['skill_raw', 'jobskill_id'], inplace = True)
+sync_fact_job_postings(update_fact_job_postings, engine= engine)
 
 # Begin to update fact_skill table
-df_skills = df_skills.dropna(subset='skill_id')
-update_fact_skill = df_skills.to_dict(orient='records')
-with Session() as session:
-  try:
-    batch_fact_skill = insert(FactSkill).values(update_fact_skill).on_conflict_do_nothing()
-    session.execute(batch_fact_skill)
-    session.commit()
-    print('[update_fact_skill] Successfully update fact skill table')
-  except Exception as e:
-    session.rollback()
-    logging.error(f'[update_fact_skill] Unable to update fact table for skill, error {e}')
-
+sync_fact_skill_fast(update_fact_skill, engine= engine)
