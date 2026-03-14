@@ -46,8 +46,7 @@ def filter_relevant(data, platform: str):
 
   # Processing data that match the predefined pattern, list 'filtered_job' is for data analysis while 'input_ai' is used to feed to AI for relabeling
   filtered_job = []
-  input_ai = []
-
+ 
   try:
     filtered_job =[
         item for item in data
@@ -66,7 +65,8 @@ def filter_relevant(data, platform: str):
 # Also label explicit title (title contain keywords like 'Data Analyst', ...)
 def remove_duplicate(job, platform: str, exist_job_id):
   # Each platform have a different way of naming key values so createing a dict to mapping based on platform of choice
-  seen_id = set(exist_job_id['job_id'])
+  seen_id = set()
+  exist_id = set(exist_job_id['job_id'].astype(str)) if exist_job_id is not None and not exist_job_id.empty else set()
   keys_for_platforms = {
       'careerviet': ['job_title', 'job_id'],
       'vietnamworks': ['jobTitle', 'jobId'],
@@ -116,7 +116,7 @@ def remove_duplicate(job, platform: str, exist_job_id):
       i['label'] = ''
     cleaned.append(i)
 
-  input_ai = [{'job_id': i.get(job_id), 'job_title': i.get(job_title)} for i in cleaned if i.get('label') == '']
+  input_ai = [{'job_id': i.get(job_id), 'job_title': i.get(job_title)} for i in cleaned if i.get('label') == '' and str(i.get(job_id)) not in exist_id]
   return cleaned, input_ai
 
 # [FUNCTION] Function to extract skills from JD
