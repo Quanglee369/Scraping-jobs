@@ -146,21 +146,31 @@ final_cv = fill_label(data = filtered_cv, label_data=labeled_cv_cleaned, platfor
 final_itviec = fill_label(data = filtered_itviec, label_data=labeled_itviec_cleaned, platform = 'itviec')
 
 
-# Prepare dataframes for each set of data
-dfcv = pd.DataFrame(final_cv)[['job_id', 'job_title', 'date_view', 'emp_name', 'skills', 'location_name', 'label', 'job_link']]
+# Define the master schema contract for downstream compatibility
+master_cols = ['job_id', 'job_title', 'date_view', 'emp_name', 'skills', 'location_name', 'label', 'job_link']
 
-# As location is cover in a list, extract the location out first
-dfcv['location_name'] = dfcv['location_name'].apply(lambda x: x[0].strip() if isinstance(x, list) else x)
+# 1. Process CareerViet
+if final_cv:
+    dfcv = pd.DataFrame(final_cv)[['job_id', 'job_title', 'date_view', 'emp_name', 'skills', 'location_name', 'label', 'job_link']]
+    dfcv['location_name'] = dfcv['location_name'].apply(lambda x: x[0].strip() if isinstance(x, list) and len(x) > 0 else x)
+    dfcv['job_link'] = dfcv['job_link'].apply(lambda x: str(x).replace('https://careerviet.vn/en', 'https://careerviet.vn/vi'))
+else:
+    # Create an empty DataFrame with the correct headers
+    dfcv = pd.DataFrame(columns=master_cols)
 
-# Replace the right locale in the link
-dfcv['job_link'] = dfcv['job_link'].apply(lambda x: str(x).replace('https://careerviet.vn/en', 'https://careerviet.vn/vi'))
-collist = dfcv.columns.tolist()
+# 2. Process VietnamWorks
+if final_vn:
+    dfvn = pd.DataFrame(final_vn)[['jobId', 'jobTitle', 'createdOn', 'companyName', 'skills', 'workingLocations', 'label', 'jobUrl']]
+    dfvn.columns = master_cols # Rename to match master schema
+else:
+    dfvn = pd.DataFrame(columns=master_cols)
 
-dfvn = pd.DataFrame(final_vn)[['jobId', 'jobTitle', 'createdOn', 'companyName', 'skills', 'workingLocations', 'label', 'jobUrl']]
-dfvn.columns = collist # Renam column base on dfcv columns
-
-dfit = pd.DataFrame(final_itviec)[['job_id', 'job_title', 'posting_date', 'company', 'skills', 'location', 'label', 'job_link']]
-dfit.columns = collist # Renam column base on dfcv columns
+# 3. Process ITViec
+if final_itviec:
+    dfit = pd.DataFrame(final_itviec)[['job_id', 'job_title', 'posting_date', 'company', 'skills', 'location', 'label', 'job_link']]
+    dfit.columns = master_cols # Rename to match master schema
+else:
+    dfit = pd.DataFrame(columns=master_cols)
 
 # Merge data
 df_master = pd.concat([dfcv, dfvn, dfit]).reset_index(drop=True)
