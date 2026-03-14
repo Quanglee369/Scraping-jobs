@@ -12,3 +12,4 @@ psycopg2-binary
 playwright
 playwright-stealth
 asyncio
+databricks-sqlalchemy
