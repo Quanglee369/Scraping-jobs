@@ -2,6 +2,7 @@ import re
 import logging
 import copy
 import ast
+import pandas as pd
 
 # [FUNCTION] Filter out relevant job header, as the primary focus is data related job (data engineer, data scientist and dat analyst)
 def filter_relevant(data, platform: str):
@@ -251,13 +252,12 @@ def prep_data_dim(data, collist):
     logging.error('[prep_data_dim] Input data or columns list is not valid')
     return None
   results = []
-
   for i in collist:
     unique_vals = data[i].dropna().unique()
     if i in ['date_view', 'last_seen']:
-      results.append([{'actual_date': x} for x in unique_vals])
+      results.append(pd.DataFrame(unique_vals, columns=['actual_date']))
     else:
-      results.append([{i: x} for x in unique_vals if x.strip() != '' and x.lower() != 'nan'])
+      results.append(pd.DataFrame(unique_vals, columns = [i]))
   return results
 
 # [FUNCTION] Convert the string representation back to a Python list
