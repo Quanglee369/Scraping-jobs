@@ -65,7 +65,7 @@ df_master['is_expired'] = False
 df_master.rename(columns = {'label': 'label_name', 'emp_name': 'emp_raw'}, inplace=True)
 
 # Explode and seperate skills data for storage efficiency
-df_skills = df_master[['job_id', 'skills']].explode('skills').reset_index(drop=True)
+df_skills = df_master[['job_id', 'skills']].explode('skills').dropna(subset=['skills']).reset_index(drop=True)
 df_skills['jobskill_id'] = df_skills['skills'].astype(str) + df_skills['job_id'].astype(str)
 df_skills.rename(columns = {'skills': 'skill_raw'}, inplace=True)
 df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
@@ -146,6 +146,15 @@ if update_fact_job_postings['label_id'].isnull().any():
   logging.error(f"⚠️ Column label_id contains {nan_count} NaN values! Proceed to fill na")
 
 update_fact_job_postings['label_id'] = update_fact_job_postings['label_id'].fillna(0).astype(int)
+
+# DEFENSIVE DROP: Prevent Databricks crash if any skills fail to map
+if update_fact_skill['skill_id'].isnull().any():
+    nan_skills = update_fact_skill['skill_id'].isnull().sum()
+    logging.warning(f"⚠️ Dropping {nan_skills} unmapped skills to prevent Databricks crash.")
+    update_fact_skill = update_fact_skill.dropna(subset=['skill_id']).reset_index(drop=True)
+
+# Force Integer type to match the Databricks schema
+update_fact_skill['skill_id'] = update_fact_skill['skill_id'].astype(int)
 
 # Begin to update fact_job_postings table
 sync_fact_job_postings(update_fact_job_postings, engine= engine)
