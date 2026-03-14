@@ -43,7 +43,7 @@ jobs:
             scraper_debug.log
           retention-days: 1
 
-  upload_to_supabase:
+  upload_to_databricks:
     needs: heavy_scrape # Wait for the scraper to finish
     runs-on: ubuntu-latest
     steps:
@@ -58,7 +58,7 @@ jobs:
       - name: Install DB & ML Libraries
         # We install only what upload_data.py needs for speed
         run: |
-          pip install pandas numpy scikit-learn sqlalchemy psycopg2-binary
+          pip install pandas numpy scikit-learn sqlalchemy databricks-sql-connector databricks-sqlalchemy
 
       - name: Download Scraped Data & Logs
         uses: actions/download-artifact@v4
@@ -67,7 +67,7 @@ jobs:
 
       - name: Run Light Uploader
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          DATABRICKS_DB_URL: ${{ secrets.DATABRICKS_DB_URL }}
         run: python upload_data.py
 
       - name: Final Log Sync
