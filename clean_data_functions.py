@@ -101,7 +101,8 @@ def remove_duplicate(job, platform: str, exist_job_id):
   # Loop through each job, only return the one that is not yet exist in the list
   # Also label job with explicit keyword to reduce AI payload
   for i in job:
-    job_id_inner = i.get(job_id)
+    raw_id = i.get(job_id)
+    job_id_inner = str(raw_id) if raw_id is not None else None
     if not job_id_inner or job_id_inner in seen_id:
       continue
 
@@ -391,21 +392,33 @@ def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, en
         return
     # 2. Build the MERGE query
     # Logic: Match on unique_key. If exists, update metadata. If not, insert.
-    update_set_clause = ", ".join([f"target.{col} = source.{col}" for col in columns_to_update])
     all_cols = set(columns_to_update + [unique_key])
     insert_cols = ", ".join(all_cols)
     insert_vals = ", ".join([f"source.{col}" for col in all_cols])
 
     try:
-        merge_sql = text(f"""
-            MERGE INTO {target_table} AS target
-            USING {staging_table} AS source
-            ON target.{unique_key} = source.{unique_key}
-            WHEN MATCHED THEN
-                UPDATE SET {update_set_clause}
-            WHEN NOT MATCHED THEN
-                INSERT ({insert_cols}) VALUES ({insert_vals})
-        """)
+        # Check if the only column we are "updating" is the unique key itself
+        if len(columns_to_update) == 1 and columns_to_update[0] == unique_key:
+            # INSERT ONLY (No UPDATE needed since the values are identical)
+            merge_sql = text(f"""
+                MERGE INTO {target_table} AS target
+                USING {staging_table} AS source
+                ON target.{unique_key} = source.{unique_key}
+                WHEN NOT MATCHED THEN
+                    INSERT ({insert_cols}) VALUES ({insert_vals})
+            """)
+        else:
+            # STANDARD UPSERT
+            update_set_clause = ", ".join([f"target.{col} = source.{col}" for col in columns_to_update])
+            merge_sql = text(f"""
+                MERGE INTO {target_table} AS target
+                USING {staging_table} AS source
+                ON target.{unique_key} = source.{unique_key}
+                WHEN MATCHED THEN
+                    UPDATE SET {update_set_clause}
+                WHEN NOT MATCHED THEN
+                    INSERT ({insert_cols}) VALUES ({insert_vals})
+            """)
 
         with engine.begin() as conn:
             conn.execute(merge_sql)
