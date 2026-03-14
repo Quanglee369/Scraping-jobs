@@ -2,8 +2,8 @@ import requests
 import os
 import logging
 import pandas as pd
-from datetime import datetime
-from clean_data_functions import safe_literal_eval
+from datetime import datetime, timedelta
+from clean_data_functions import safe_literal_eval, prep_data_dim, fast_remove_accents
 from sqlalchemy import text, create_engine
 
 
@@ -153,7 +153,7 @@ def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update):
 
 url = os.getenv('DATABRICKS_DB_URL')
 engine = create_engine(url, connect_args={"base_parameters": {"query_timeout": 30}})
-
+print(url)
 try:
     engine.connect()
     print('Connection Successful')
@@ -162,7 +162,6 @@ except Exception as e:
 
 
 df = pd.read_csv('/workspaces/Scraping-jobs/df_master.csv')
-df['date_view'] = pd.to_datetime(df['date_view'], utc=True, format = 'ISO8601').dt.tz_convert('Asia/Ho_Chi_Minh').dt.date
 
 date_dim_dict = pd.read_sql_query("Select * from date_dim", engine)
 emp_dim_dict = pd.read_sql_query("Select * from emp_dim", engine)
@@ -170,24 +169,24 @@ location_dim_dict = pd.read_sql_query("Select * from location_dim", engine)
 label_dim_dict = pd.read_sql_query("Select * from label_dim", engine)
 skill_dim_dict = pd.read_sql_query("Select * from skill_dim", engine)
 
+df['date_view'] = pd.to_datetime(df['date_view'], utc=True, format = 'ISO8601').dt.tz_convert('Asia/Ho_Chi_Minh').dt.date
 df['skills'] = df['skills'].apply(safe_literal_eval)
-df['last_seen'] = datetime.today().date()
+df['last_seen'] = (datetime.today()-timedelta(days=1)).date()
 df['is_expired'] = False
+df['location_name'] = df['location_name'].apply(fast_remove_accents).str.split(" - ").apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else x)
+df.rename(columns = {'label': 'label_name', 'emp_name': 'emp_raw'}, inplace=True)
+
 
 df5 = (df
     .merge(date_dim_dict, how='inner', left_on='date_view', right_on='actual_date')
     .drop(columns=['actual_date'])
     .rename(columns= {'date_id': 'created_on_id'})
-    .merge(emp_dim_dict, how='inner', left_on='emp_name', right_on='emp_raw')
+    .merge(emp_dim_dict, how='inner', left_on='emp_raw', right_on='emp_raw')
     .merge(location_dim_dict, how='inner', on='location_name')
-    .merge(label_dim_dict, how='inner', left_on='label', right_on='label_name')
+    .merge(label_dim_dict, how='inner', left_on='label_name', right_on='label_name')
     .merge(date_dim_dict, left_on='last_seen', right_on='actual_date')
     .rename(columns={'date_id': 'last_seen_id'})
     # Drop all the 'raw' columns used for joining in one go
-    .drop(columns=[
-        'date_view', 'actual_date', 'last_seen','emp_name', 'emp_raw', 
-        'emp_cleaned', 'location_name', 'label', 'label_name'
-    ])
 )
 
 
@@ -195,9 +194,33 @@ df_skill_final = (df5[['job_id', 'skills']]
                 .explode('skills').reset_index(drop=True)
                 .assign(skill_raw = lambda x: x['skills'].str.strip())
                 .merge(skill_dim_dict, on = 'skill_raw', how='inner')
-                .drop(columns=['skill_raw', 'skill_cleaned', 'skills'])
+                .drop(columns=['skill_cleaned', 'skills'])
                 .reset_index(drop=True)
 )
 
 df5 = df5.drop(columns = 'skills')
 
+print(df5.columns)
+print(df5.head())
+
+print(df_skill_final.columns)
+print(df_skill_final.head())
+
+list_of_dim_cols = ['location_name', 'date_view', 'last_seen', 'label_name', 'emp_raw']
+results = prep_data_dim(data=df5, collist=list_of_dim_cols)
+location_name = results[0]
+date_view = results[1]
+last_seen = results[2]
+label = results[3]
+emp_name = results[4]
+
+list_of_dim_cols_skills = ['skill_raw']
+result_skills = prep_data_dim(data=df_skill_final, collist=list_of_dim_cols_skills)
+skills = result_skills[0]
+
+print(location_name.head())
+print(date_view.head())
+print(last_seen.head())
+print(label.head())
+print(emp_name.head())
+print(skills.head())
