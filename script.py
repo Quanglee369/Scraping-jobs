@@ -96,9 +96,11 @@ async def execute_extract_skills():
         return []
 
 alljdcv = asyncio.run(execute_extract_skills())
-for i, u in zip(filtered_cv, alljdcv):
-  if i.get('job_id') == u.get('job_id'):
-    i['skills'] = u.get('skills')
+skills_map = {item.get('job_id'): item.get('skills') for item in alljdcv if item}
+for i in filtered_cv:
+    job_id = i.get('job_id')
+    if job_id in skills_map:
+        i['skills'] = skills_map[job_id]
 
 # Sending data for AI to relabel jobs
 labeled_cv = []
