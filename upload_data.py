@@ -145,7 +145,7 @@ if update_fact_job_postings['label_id'].isnull().any():
   nan_count = update_fact_job_postings['label_id'].isnull().sum()
   logging.error(f"⚠️ Column label_id contains {nan_count} NaN values! Proceed to fill na")
 
-update_fact_job_postings['label_id'] = update_fact_job_postings['label_id'].fillna(0).astype(int)
+update_fact_job_postings['label_id'] = update_fact_job_postings['label_id'].fillna(5).astype(int)
 
 # DEFENSIVE DROP: Prevent Databricks crash if any skills fail to map
 if update_fact_skill['skill_id'].isnull().any():
