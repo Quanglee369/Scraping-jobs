@@ -206,9 +206,13 @@ def fill_label(data, label_data, platform: str):
     logging.error(f'[fill_label] platform is not in the list : {keys_for_platforms.keys()}')
     return []
   
-  if not data or not label_data:
-    logging.error('[fill_label] data invalid')
+  if not data:
+    logging.warning(f'[fill_label] data invalid for {clean_platform}')
     return []
+    
+  if not label_data:
+    logging.warning(f'[fill_label] label data invalid for {clean_platform} proceed with blank label')
+    label_data = {}
 
   job_id = keys_for_platforms.get(clean_platform)[1]
 
