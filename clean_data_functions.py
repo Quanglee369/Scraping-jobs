@@ -7,6 +7,14 @@ from sqlalchemy import text
 
 # [FUNCTION] Filter out relevant job header, as the primary focus is data related job (data engineer, data scientist and dat analyst)
 def filter_relevant(data, platform: str):
+  """Remove none-relevant jobs
+  Args:
+    data (list of dicts): List of dict with jobs information
+    platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
+  
+  Returns:
+    list of dicts: The filtered list 
+  """
 
   # Define keywords must be present in the job title 'mh_words' and keywords should be present 'en_keywords' + 'vn_keywords'
   en_keywords = ['intelligence', 'bi', 'developer','head','insights', 'processing', 'mining', 'reporting', 'modeling', 'model','expert', 'computer vision', 'analyst', 'analytics', 'analyse', 'engineering','engineer', 'database', 'governance', 'administrator', 'science', 'scientist', 'architect']
@@ -32,11 +40,8 @@ def filter_relevant(data, platform: str):
   # Check if data is valid
   if not data:
     logging.error('[filter_relevant] Data invalid !')
-    raise ValueError('[filter_relevant] Data invalid !')
-
 
   job_title = keys_for_platforms.get(clean_platform)[0]
-  job_id = keys_for_platforms.get(clean_platform)[1]
 
   # Compile the regular expression (regex) pattern for higher efficiency in the loop
   all_keywords = en_keywords + vn_keywords
@@ -44,7 +49,7 @@ def filter_relevant(data, platform: str):
   neg_pattern = re.compile(r'\b(' + '|'.join(nega_keyword) + r')\b', re.IGNORECASE)
   mh_pattern = re.compile(r'\b(' + '|'.join(mh_words) + r')\b', re.IGNORECASE)
 
-  # Processing data that match the predefined pattern, list 'filtered_job' is for data analysis while 'input_ai' is used to feed to AI for relabeling
+  # Processing data that match the predefined pattern
   filtered_job = []
  
   try:
@@ -58,20 +63,35 @@ def filter_relevant(data, platform: str):
     return filtered_job
 
   except Exception as e:
-    logging.error(f'[filter_relevant] Unable to clean data and prepare for AI input, error: {e}')
+    logging.error(f'[filter_relevant] Unable to clean data and prepare for AI input, error detail: {e}')
     return [], []
 
 # [FUNCTION] Remove duplicated job based on id as job can be duplicated when searching for closely related position (example: Data Analysis might have duplicated job with Data Scientist)
 # Also label explicit title (title contain keywords like 'Data Analyst', ...)
+
 def remove_duplicate(job, platform: str, exist_job_id):
-  # Each platform have a different way of naming key values so createing a dict to mapping based on platform of choice
+  """ Remove duplicate jobs
+  args:
+    job (list of dicts): list of dict with jobs information
+    platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
+    exist_job_id (dataframe): dataframne of job_id already exist in the database
+
+  returns:
+    cleaned (list of dict): list of dict with filtered jobs information
+    input_ai (list of dict): list of dict with job_id and job_title for AI labeling
+  """
+
+  # Create a set of seen_id to remove the duplicates currently in the data
+  # Create a set of exist_id to remove the duplicate when compare with the database, use to reduce AI model payload
   seen_id = set()
   exist_id = set(exist_job_id['job_id'].astype(str)) if exist_job_id is not None and not exist_job_id.empty else set()
+
   keys_for_platforms = {
       'careerviet': ['job_title', 'job_id'],
       'vietnamworks': ['jobTitle', 'jobId'],
       'itviec': ['job_title', 'job_id']
   }
+
   # Intialize dict for labeling to reduce AI payload
   label_mapping = {
     "dataanalyst": "Data Analyst",
@@ -89,7 +109,7 @@ def remove_duplicate(job, platform: str, exist_job_id):
 
   # Check if data is valid
   if not job:
-    logging.error('[remove_duplicate] No job data to remove duplicate !')
+    logging.error('[remove_duplicate] Invalid job data')
     return [], []
   cleaned = []
 
@@ -99,7 +119,7 @@ def remove_duplicate(job, platform: str, exist_job_id):
   pattern = re.compile('|'.join(re.escape(k) for k in label_mapping.keys()))
 
   # Loop through each job, only return the one that is not yet exist in the list
-  # Also label job with explicit keyword to reduce AI payload
+
   for i in job:
     raw_id = i.get(job_id)
     job_id_inner = str(raw_id) if raw_id is not None else None
@@ -108,6 +128,7 @@ def remove_duplicate(job, platform: str, exist_job_id):
 
     seen_id.add(job_id_inner)
 
+    # Also label job with explicit keyword to reduce AI payload
     match_label = pattern.search(i.get(job_title).lower().replace(' ', ''))
 
     if match_label:
@@ -121,6 +142,13 @@ def remove_duplicate(job, platform: str, exist_job_id):
 
 # [FUNCTION] Function to extract skills from JD
 def extract_skills_from_jd(job_list):
+  """Extract skills from Job Descriptions
+  Args:
+    job_list (list of dict): list of dict with Job Id and Job Descriptions to extract skills
+
+  Returns:
+    results (list of dict): list of dict with Job Id and skill names
+  """
   # Define all keywords for skills need to be matched
   all_skills = [
       # Programming & Scripting
@@ -194,6 +222,14 @@ def extract_skills_from_jd(job_list):
 
 # [FUNCTION] Fill in the label result from AI
 def fill_label(data, label_data, platform: str):
+  """Fill label results from AI output
+  args:
+    data (list of dict): list of dict with job information
+    label_data (list of dict): list of dict with job id and job label result from AI
+    platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
+  returns:
+    temp_date (list of dict): list of dict with job information (labeled)
+  """
   keys_for_platforms = {
       'careerviet': ['job_title', 'job_id'],
       'vietnamworks': ['jobTitle', 'jobId'],
@@ -226,6 +262,12 @@ def fill_label(data, label_data, platform: str):
 
 # [FUNCTION] Remove accents, convert Vietnamese into ASCII format
 def fast_remove_accents(text):
+    """Remove accents and convert Vietnamese into ASCII-friendly format
+    args:
+      text (str): String need to be processed
+    returns:
+      str: cleaned text
+    """
     if not isinstance(text, str):
         return ""
 
@@ -256,6 +298,13 @@ def fast_remove_accents(text):
 
 # [FUNCTION] Prepare data as a list of dict with unique value to update dim tables
 def prep_data_dim(data, collist):
+  """Prepare data to update dim tables in database
+  args:
+    data (dataframe): clean dataframe of job data need to be processed
+    collist (list): list of column need to extract from dataframe
+  results:
+    list of dataframes: list of dataframes respective to the collist
+  """
   if data.empty or not collist or len(collist) == 0:
     logging.error('[prep_data_dim] Input data or columns list is not valid')
     return None
@@ -278,6 +327,13 @@ def safe_literal_eval(val):
         return []
     
 def sync_fact_job_postings(df, engine):
+    """Update fact_job_postings table in database
+    args:
+      df (dataframe): dataframe of job information
+      engine (sqlalchemy object): engine to connect and interact with database
+    returns:
+      None
+    """
     if df.empty:
         return
 
@@ -301,7 +357,7 @@ def sync_fact_job_postings(df, engine):
         print('[sync_fact_job_postings] Successfully created staging table')
 
     except Exception as e:
-        logging.error(f"[sync_fact_job_postings] Error in creating staging table, error: {e}")
+        logging.error(f"[sync_fact_job_postings] Error in creating staging table, error detail: {e}")
         return
 
     # 3. Native MERGE (Handling Updates & Inserts)
@@ -324,13 +380,20 @@ def sync_fact_job_postings(df, engine):
             conn.execute(merge_sql)
             conn.execute(text(f"DROP TABLE {staging_table}"))
 
-        print(f"Successfully synced {target_table}")
+        print(f"[sync_fact_job_postings] Successfully synced {target_table}")
 
     except Exception as e:
-        logging.error(f'[sync_fact_job_postings] Error in merging with the main table, error {e}')
+        logging.error(f'[sync_fact_job_postings] Error in merging with the main table, error detail: {e}')
         return
 
 def sync_fact_skill_fast(df, engine):
+    """Update fact_skill table in database
+    args:
+      df (dataframe): dataframe of job information
+      engine (sqlalchemy object): engine to connect and interact with database
+    returns:
+      None
+    """
     if df.empty:
         return
 
@@ -347,7 +410,7 @@ def sync_fact_skill_fast(df, engine):
         df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
         print('[sync_fact_skill_fast] Success updating staging table')
     except Exception as e:
-        logging.error(f"[sync_fact_skill_fast] Error when updating staging table, error: {e}")
+        logging.error(f"[sync_fact_skill_fast] Error when updating staging table, error detail: {e}")
         return
     # 3. Fast "Not Exists" Insert
     # This query only inserts rows where the combination of skill_id AND job_id doesn't exist yet
@@ -369,7 +432,7 @@ def sync_fact_skill_fast(df, engine):
 
         print(f"[sync_fact_skill_fast] Successfully synced {target_table}")
     except Exception as e:
-        logging.error(f"[sync_fact_skill_fast] Error in updating main database, error: {e}")
+        logging.error(f"[sync_fact_skill_fast] Error in updating main database, error detail: {e}")
         return
 
 def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, engine):
@@ -392,7 +455,7 @@ def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, en
         df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
         print(f"[databricks_hybrid_upsert] Success updating {staging_table}")
     except Exception as e:
-        logging.error(f"[databricks_hybrid_upsert] Failed to update staging table, error: {e}")
+        logging.error(f"[databricks_hybrid_upsert] Failed to update staging table, error detail: {e}")
         return
     # 2. Build the MERGE query
     # Logic: Match on unique_key. If exists, update metadata. If not, insert.
@@ -430,6 +493,6 @@ def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, en
 
         print(f"[databricks_hybrid_upsert] Successfully synced {target_table}")
     except Exception as e:
-        logging.error(f"[databricks_hybrid_upsert] Fail to update main databse, error: {e}")
+        logging.error(f"[databricks_hybrid_upsert] Fail to update main databse, error detail: {e}")
         return
 
