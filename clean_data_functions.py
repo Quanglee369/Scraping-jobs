@@ -369,8 +369,7 @@ def sync_fact_job_postings(df, engine):
             WHEN MATCHED THEN
                 UPDATE SET
                     target.is_expired = source.is_expired,
-                    target.last_seen_id = source.last_seen_id,
-                    target.created_on_id = source.created_on_id
+                    target.last_seen_id = source.last_seen_id
             WHEN NOT MATCHED THEN
                 INSERT (job_id, job_title, is_expired, job_link, last_seen_id, location_id, label_id, emp_id, created_on_id)
                 VALUES (source.job_id, source.job_title, source.is_expired, source.job_link, source.last_seen_id,
