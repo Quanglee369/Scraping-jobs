@@ -32,7 +32,7 @@
       "metadata": {
         "id": "zHpFLggqMkIF"
       },
-      "execution_count": 1,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -42,27 +42,10 @@
         "!pip install reverse_geocoder"
       ],
       "metadata": {
-        "id": "wf2XXkl9TnNa",
-        "outputId": "a7316cfe-b40c-41ef-e87d-f0c1b26a65d1",
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        }
+        "id": "wf2XXkl9TnNa"
       },
-      "execution_count": 1,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Collecting selectolax\n",
-            "  Downloading selectolax-0.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.2 kB)\n",
-            "Downloading selectolax-0.4.7-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (2.3 MB)\n",
-            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.3/2.3 MB\u001b[0m \u001b[31m25.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
-            "\u001b[?25hInstalling collected packages: selectolax\n",
-            "Successfully installed selectolax-0.4.7\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "markdown",
@@ -163,7 +146,7 @@
       "metadata": {
         "id": "jc6XGy394gRP"
       },
-      "execution_count": 119,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -253,7 +236,7 @@
       "metadata": {
         "id": "bFUmBoiy4Hjk"
       },
-      "execution_count": 4,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -392,7 +375,7 @@
       "metadata": {
         "id": "nXAvbmnZzHgq"
       },
-      "execution_count": 5,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -493,7 +476,7 @@
       "metadata": {
         "id": "ylNdsLRmMnV_"
       },
-      "execution_count": 6,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -602,7 +585,7 @@
       "metadata": {
         "id": "pWPABeNaNYKr"
       },
-      "execution_count": 7,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -671,7 +654,7 @@
       "metadata": {
         "id": "DHdlwFy_Oq65"
       },
-      "execution_count": 209,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -762,7 +745,7 @@
       "metadata": {
         "id": "aKaWRUJPNtFm"
       },
-      "execution_count": 208,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -778,7 +761,7 @@
       "metadata": {
         "id": "LG2HRTo_98Se"
       },
-      "execution_count": 9,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -792,7 +775,7 @@
       "metadata": {
         "id": "e0LMUzxvehsg"
       },
-      "execution_count": 10,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -813,7 +796,7 @@
       "metadata": {
         "id": "qz8DyNyPeohU"
       },
-      "execution_count": 11,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -824,7 +807,7 @@
       "metadata": {
         "id": "Vip-7HmVnfdk"
       },
-      "execution_count": 12,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -835,7 +818,7 @@
       "metadata": {
         "id": "vcQ8jUOe_Ios"
       },
-      "execution_count": 13,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -846,7 +829,7 @@
       "metadata": {
         "id": "DsDzZOPbX6w4"
       },
-      "execution_count": 14,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -857,7 +840,7 @@
       "metadata": {
         "id": "E52xYmLxs5DP"
       },
-      "execution_count": 15,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -871,7 +854,7 @@
       "metadata": {
         "id": "uNwXpXcU9-2A"
       },
-      "execution_count": 133,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -885,7 +868,7 @@
       "metadata": {
         "id": "zuVswB2J5qfU"
       },
-      "execution_count": 17,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -910,7 +893,7 @@
       "metadata": {
         "id": "AAkivXVWceYD"
       },
-      "execution_count": 18,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -919,24 +902,10 @@
         "filtered_data_html = filter_relevant_mult(data = [final_data_html])"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "yjUsVZyxr6QS",
-        "outputId": "fa74fb1a-a68f-453d-a96d-16bd0fd49c26"
+        "id": "yjUsVZyxr6QS"
       },
-      "execution_count": 19,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Platform: job123 is not in the list: dict_keys(['careerviet', 'vietnamworks', 'monster', 'itviec', 'topdev', 'other']) proceed with the option other\n",
-            "Platform: careerjet is not in the list: dict_keys(['careerviet', 'vietnamworks', 'monster', 'itviec', 'topdev', 'other']) proceed with the option other\n",
-            "Platform: studentjob is not in the list: dict_keys(['careerviet', 'vietnamworks', 'monster', 'itviec', 'topdev', 'other']) proceed with the option other\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -944,24 +913,10 @@
         "cleaned_data_html, input_ai_html = remove_duplicate_multi(data = filtered_data_html, exist_job_id=pd.DataFrame())"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "2rxa8P2GtN-w",
-        "outputId": "79c0e113-9ec8-4a36-b4dd-c99a3652b65b"
+        "id": "2rxa8P2GtN-w"
       },
-      "execution_count": 20,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "[remove_duplicate] platform: job123 is not in the list: dict_keys(['careerviet', 'vietnamworks', 'itviec', 'monster', 'topdev', 'other']) proceed with the option other\n",
-            "[remove_duplicate] platform: careerjet is not in the list: dict_keys(['careerviet', 'vietnamworks', 'itviec', 'monster', 'topdev', 'other']) proceed with the option other\n",
-            "[remove_duplicate] platform: studentjob is not in the list: dict_keys(['careerviet', 'vietnamworks', 'itviec', 'monster', 'topdev', 'other']) proceed with the option other\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -970,100 +925,10 @@
         "  jd_data_html = await fetch_jd_mult(session = session, data=cleaned_data_html)"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "RWXfdkRqohkQ",
-        "outputId": "c5fe19b4-8e9b-4f88-a50f-3a5af539c5df"
+        "id": "RWXfdkRqohkQ"
       },
-      "execution_count": 50,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hr-data-analyst-29ALPYzWDJ?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-P9YVJZbAra?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-wDWZEWmBqe?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-dr8Z66knD4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-BqP4go77qz?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-59y7zgz4qL?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-BDnBPGB1DR?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-Oq5M5lLRqp?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-59y7w2YWqL?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-JD60emjwrn?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hr-data-analyst-W9pXOG1x9p?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-intern-29Gg8VN79E?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-tableau-remote-v90o5KQbDk?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-analyst-du-an-egov-yDNQ1GBMqz?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/chuyen-vien-data-analyst-da-j9KQ1RQ3qA?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/chuyen-vien-phan-tich-du-lieu-data-analyst-dr8ZzzkeD4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/power-bi-developer-data-analyst-database-sql-lroWV74er4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/nhan-vien-phan-tich-du-lieu-data-analyst-yDNQaegPqz?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-data-analyst-sql-python-r-power-bi-29ALzNXJDJ?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/chuyen-gia-phan-tich-du-lieu-senior-data-analyst-kcntt-v90oPkMODk?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-fresher-junior-v91B3YxXrW?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-5qmEAZbQq8?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-wDWZO6agqe?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-JDajVZjN9G?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/fresher-data-engineer-g9d1nY4ark?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/presales-data-engineer-ND4ZnVGYrv?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-data-engineer-ND4ZayVXrv?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-database-sql-oracle-59y7zVgZqL?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-district-9-hcmc-G9xYadjmrN?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/chuyen-vien-du-lieu-data-engineer-ArX8gw7mrV?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-khoi-du-lieu-holt02-JDaj7mNL9G?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-sql-adf-cosmos-db-5qmEgJxNq8?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-data-engineer-database-my-sql-sql-dr8Zz3peD4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-khong-yeu-cau-kinh-nghiem-g9d1Npv1rk?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hanoi-ky-su-du-lieu-data-engineer-P9YVONNyra?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineer-lam-viec-tai-ha-noi-W9pXAx6P9p?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/cv-chinh-cvcc-data-scientist-v90oEp13Dk?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-scientist-W9pXOYM79p?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-scientist-4q3LKYWYD2?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-scientist-1qwOeoV2q8?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hcm-data-scientist-JDajVo6L9G?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-scientist-JD60lvQBrn?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-data-scientist-ha-noi-ta139-LqkE8n2M93?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-scientist-expert-ha-noi-ta139-Oq5MzbpVqp?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-y9Bw2pYgrA?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-5DOVOzd8qV?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-yreJVnjGqz?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-3qZaQvKxr4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-0q77GA4Jq8?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-developer-lroW3o52r4?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-intern-v91BYPXxrW?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-W9pXAdV49p?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-v91BnRKgrW?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-intern-A9V8OwkPqn?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hanoi-ai-engineer-g9d1XAMjrk?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ml-ai-engineer-LqkE2djk93?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-Oq5Mzd6Rqp?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-JD60eR8arn?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-intern-JDajOLxE9G?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/hanoi-junior-ai-engineer-wDWZOYYZqe?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-ai-engineer-29GgeOGb9E?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/fresher-ai-engineer-y9Bw2WNgrA?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-intern-v91BY5oorW?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-engineer-thu-viec-120-luong-o9jyoywgDR?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-middle-ai-engineer-python-ND4Zz1dyrv?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/senior-net-developer-c-net-sql-wDWZO5Apqe?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/cv-cvc-cvcc-lap-trinh-tich-hop-du-lieu-sql-plsql-developer-zrMLjdZd9d?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/junior-java-developer-sql-spring-A9V8Ow21qn?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/data-engineering-python-sql-oracle-zrML7waQ9d?codePosition=C1\n",
-            "Error, status code: 404 for platform: job123 link: https://123job.vn/viec-lam/ai-analyst-python-sql-llm-Oq5MzdjKqp?codePosition=C1\n"
-          ]
-        },
-        {
-          "output_type": "stream",
-          "name": "stderr",
-          "text": [
-            "/tmp/ipykernel_38560/361441681.py:2: RuntimeWarning: coroutine 'fetch_jd_mult' was never awaited\n",
-            "  jd_data_html = await fetch_jd_mult(session = session, data=cleaned_data_html)\n",
-            "RuntimeWarning: Enable tracemalloc to get the object allocation traceback\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1073,7 +938,7 @@
       "metadata": {
         "id": "al2uji8Shr2b"
       },
-      "execution_count": 105,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -1087,7 +952,7 @@
       "metadata": {
         "id": "dCGcx_ymyIuZ"
       },
-      "execution_count": 151,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -1102,7 +967,7 @@
       "metadata": {
         "id": "6u8YNVgR1Zyo"
       },
-      "execution_count": 203,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -1111,281 +976,10 @@
         "pd.DataFrame(total_html_data)['created_on'].unique()"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "pF-hOHLuLqdl",
-        "outputId": "385da983-fe1c-4616-9f6a-cb2f2b9a13e5"
+        "id": "pF-hOHLuLqdl"
       },
-      "execution_count": 207,
-      "outputs": [
-        {
-          "output_type": "execute_result",
-          "data": {
-            "text/plain": [
-              "array(['2026-03-17 03:50:06', '2026-03-14 09:30:04',\n",
-              "       '2026-02-14 07:20:02', '2026-03-11 17:35:03',\n",
-              "       '2026-02-25 15:50:05', '2026-02-28 19:05:07',\n",
-              "       '2026-02-13 13:10:02', '2026-03-19 17:15:07',\n",
-              "       '2026-03-20 18:55:08', '2026-03-19 19:15:04',\n",
-              "       '2026-03-18 07:10:04', '2026-03-19 19:55:05',\n",
-              "       '2026-03-17 15:20:05', '2026-03-17 00:30:05',\n",
-              "       '2026-03-19 17:15:10', '2026-03-21 00:45:08',\n",
-              "       '2026-03-20 12:55:06', '2026-03-15 06:55:10',\n",
-              "       '2026-03-14 18:40:10', '2026-03-16 02:15:04',\n",
-              "       '2026-03-16 15:00:06', '2026-03-13 22:45:06',\n",
-              "       '2026-03-13 12:45:11', '2026-03-14 01:05:04',\n",
-              "       '2026-03-13 12:35:08', '2026-03-17 12:35:04',\n",
-              "       '2026-03-18 13:10:05', '2026-03-12 06:20:07',\n",
-              "       '2026-03-14 00:35:07', '2026-03-14 13:25:05',\n",
-              "       '2026-02-28 19:05:06', '2026-03-13 04:30:05',\n",
-              "       '2026-03-05 19:00:08', '2026-03-04 20:05:06',\n",
-              "       '2026-01-05 19:15:03', '2025-12-14 00:45:03',\n",
-              "       '2025-12-19 02:25:02', '2026-01-06 00:35:02',\n",
-              "       '2025-12-05 10:30:03', '2026-02-06 00:30:03',\n",
-              "       '2026-01-11 00:25:03', '2026-01-09 13:10:02',\n",
-              "       '2026-03-06 18:55:06', '2026-02-12 09:30:04',\n",
-              "       '2026-01-30 01:25:02', '2026-01-24 19:55:03',\n",
-              "       '2026-01-27 22:50:02', '2026-01-24 21:10:03',\n",
-              "       '2026-01-26 04:20:02', '2026-01-20 15:05:02',\n",
-              "       '2026-03-02 05:55:06', '2026-03-05 11:50:04',\n",
-              "       '2026-01-22 10:00:04', '2026-01-17 12:40:02',\n",
-              "       '2025-12-05 12:15:02', '2026-01-26 23:05:03',\n",
-              "       '2026-03-08 12:40:06', '2025-12-12 22:20:03',\n",
-              "       '2025-12-16 07:10:03', '2025-12-21 00:55:03',\n",
-              "       '2025-12-01 17:10:04', '2026-01-08 13:15:02',\n",
-              "       '2026-01-15 19:15:03', '2026-01-22 21:35:02',\n",
-              "       '2026-01-22 20:10:03', '2025-12-01 17:10:02',\n",
-              "       '2026-01-20 03:10:02', '2026-01-23 16:25:03',\n",
-              "       '2026-02-25 01:50:05', '2025-12-29 06:15:03',\n",
-              "       '2025-12-24 06:35:03', '2026-02-04 17:45:03',\n",
-              "       '2026-01-23 02:10:03', '2025-12-14 19:05:02',\n",
-              "       '2026-02-06 17:20:03', '2026-01-23 03:10:02',\n",
-              "       '2026-01-12 01:10:02', '2026-02-04 12:35:02',\n",
-              "       '2026-01-17 08:25:03', '2026-02-15 19:20:03',\n",
-              "       '2026-02-07 19:35:02', '2026-01-09 13:15:03',\n",
-              "       '2026-01-20 12:25:02', '2026-03-07 01:50:07',\n",
-              "       '2026-01-09 03:05:03', '2026-02-27 00:10:05',\n",
-              "       '2026-02-13 19:15:03', '2025-11-28 15:10:03',\n",
-              "       '2025-12-28 04:15:02', '2026-01-21 13:00:03',\n",
-              "       '2025-12-01 17:15:03', '2026-01-28 01:10:03',\n",
-              "       '2026-01-30 12:00:07', '2026-01-23 06:30:03',\n",
-              "       '2025-12-18 13:50:03', '2026-01-25 16:00:04',\n",
-              "       '2026-01-26 13:30:02', '2026-01-30 08:30:04',\n",
-              "       '2026-01-22 09:40:02', '2026-01-27 20:55:03',\n",
-              "       '2025-11-27 12:55:03', '2025-11-27 15:50:02',\n",
-              "       '2025-11-29 06:40:03', '2025-12-11 12:40:02',\n",
-              "       '2026-01-19 15:40:03', '2026-02-12 09:25:04',\n",
-              "       '2026-01-25 10:05:02', '2026-01-09 12:30:04',\n",
-              "       '2026-01-22 12:55:03', '2026-02-06 18:50:03',\n",
-              "       '2026-03-09 18:55:08', '2026-01-20 17:05:02',\n",
-              "       '2026-03-05 01:45:06', '2026-03-04 16:10:06',\n",
-              "       '2025-11-28 00:50:03', '2025-12-26 12:25:02',\n",
-              "       '2026-01-19 17:15:03', '2026-01-15 01:10:02',\n",
-              "       '2026-03-03 07:50:06', '2025-12-01 17:20:04',\n",
-              "       '2025-12-27 01:30:04', '2026-01-28 20:15:03',\n",
-              "       '2026-01-25 19:35:02', '2025-12-04 18:00:07',\n",
-              "       '2026-01-21 12:55:03', '2026-02-03 13:40:03',\n",
-              "       '2026-01-21 19:30:03', '2026-03-07 01:20:05',\n",
-              "       '2026-02-12 09:20:05', '2026-02-08 01:25:03',\n",
-              "       '2026-01-20 17:10:03', '2025-12-22 06:45:03',\n",
-              "       '2026-02-10 10:00:04', '2026-01-21 08:25:02',\n",
-              "       '2026-03-01 01:35:03', '2026-03-01 13:15:06',\n",
-              "       '2025-12-02 10:15:05', '2026-01-21 12:45:02',\n",
-              "       '2026-02-05 06:35:02', '2025-11-29 12:05:03',\n",
-              "       '2026-01-21 09:05:02', '2026-01-30 01:55:03',\n",
-              "       '2026-01-03 18:15:03', '2026-01-20 17:20:03',\n",
-              "       '2026-01-22 16:00:05', '2026-01-19 09:40:02',\n",
-              "       '2025-12-25 06:35:03', '2026-01-21 10:10:02',\n",
-              "       '2026-01-22 08:25:02', '2026-02-07 07:00:04',\n",
-              "       '2026-02-03 19:10:02', '2026-01-22 16:10:03',\n",
-              "       '2026-01-09 17:25:02', '2026-03-03 19:00:06',\n",
-              "       '2025-12-08 19:20:02', '2026-03-07 18:25:05',\n",
-              "       '2026-02-13 00:40:02', '2026-01-22 05:10:02',\n",
-              "       '2026-02-12 09:25:03', '2025-12-15 23:20:02',\n",
-              "       '2026-02-03 14:25:02', '2026-03-04 02:30:07',\n",
-              "       '2026-03-05 05:50:11', '2025-12-18 22:15:02',\n",
-              "       '2026-01-25 03:15:02', '2026-01-03 17:10:03',\n",
-              "       '2026-02-07 18:30:03', '2026-01-20 05:45:03',\n",
-              "       '2026-01-24 08:40:03', '2025-12-03 04:00:04',\n",
-              "       '2026-01-20 17:25:02', '2026-01-22 01:25:02',\n",
-              "       '2025-12-02 13:00:03', '2026-01-22 15:55:02',\n",
-              "       '2026-01-08 13:05:03', '2026-02-16 23:35:03',\n",
-              "       '2025-11-29 01:20:02', '2026-01-25 01:50:03',\n",
-              "       '2026-01-23 12:45:03', '2026-01-30 07:45:03',\n",
-              "       '2026-01-04 04:00:04', '2026-02-04 17:50:03',\n",
-              "       '2026-02-21 04:40:03', '2026-01-09 06:30:03',\n",
-              "       '2026-02-02 12:40:02', '2025-12-30 07:05:03',\n",
-              "       '2026-01-27 01:00:03', '2026-02-25 06:35:08',\n",
-              "       '2025-12-08 18:35:03', '2026-01-13 18:40:03',\n",
-              "       '2026-01-14 00:50:03', '2026-01-28 18:35:02',\n",
-              "       '2025-12-04 06:30:03', '2026-03-06 13:25:04',\n",
-              "       '2025-12-16 18:30:04', '2026-03-06 19:50:08',\n",
-              "       '2026-01-13 18:35:03', '2026-02-01 04:25:02',\n",
-              "       '2025-12-17 22:45:03', '2025-11-29 13:20:03',\n",
-              "       '2025-12-15 13:15:03', '2026-01-15 01:25:02',\n",
-              "       '2026-02-07 07:35:03', '2026-02-12 09:30:05',\n",
-              "       '2026-02-05 18:25:02', '2026-01-10 19:15:03',\n",
-              "       '2026-01-28 02:30:03', '2026-02-09 06:30:03',\n",
-              "       '2025-12-25 19:05:02', '2026-03-03 07:05:07',\n",
-              "       '2026-03-19 19:20:07', '2026-03-18 00:40:07',\n",
-              "       '2026-03-16 06:25:06', '2026-03-12 07:30:09',\n",
-              "       '2026-02-28 00:50:05', '2026-02-19 06:30:03',\n",
-              "       '2026-03-17 23:45:05', '2026-03-13 12:40:09',\n",
-              "       '2026-03-20 12:20:06', '2026-03-21 06:55:08',\n",
-              "       '2026-03-20 00:30:08', '2026-03-16 18:45:07',\n",
-              "       '2026-03-16 12:20:05', '2026-03-15 07:30:09',\n",
-              "       '2026-03-15 11:30:05', '2026-03-16 19:00:06',\n",
-              "       '2026-03-15 12:45:09', '2026-03-19 12:25:07',\n",
-              "       '2026-03-14 07:15:07', '2026-03-11 05:45:05',\n",
-              "       '2026-03-17 13:15:06', '2026-03-20 07:10:05',\n",
-              "       '2026-03-13 16:55:07', '2026-03-05 05:50:07',\n",
-              "       '2026-02-12 09:35:03', '2026-01-16 13:00:03',\n",
-              "       '2025-12-16 04:15:03', '2026-01-23 18:55:03',\n",
-              "       '2026-01-31 19:15:03', '2026-02-17 18:50:02',\n",
-              "       '2026-03-03 19:20:06', '2026-03-01 13:05:03',\n",
-              "       '2026-02-23 16:35:04', '2026-02-28 18:20:05',\n",
-              "       '2026-01-05 19:50:02', '2026-01-15 06:50:03',\n",
-              "       '2026-02-26 00:45:05', '2026-02-06 04:00:04',\n",
-              "       '2025-12-13 01:05:03', '2026-01-13 06:25:02',\n",
-              "       '2026-01-16 07:05:02', '2026-01-14 01:35:03',\n",
-              "       '2026-01-06 00:45:02', '2026-02-27 00:35:07',\n",
-              "       '2026-02-24 00:20:06', '2026-02-07 14:35:02',\n",
-              "       '2026-01-12 07:25:03', '2026-01-15 19:10:02',\n",
-              "       '2026-01-05 18:50:02', '2026-03-02 00:00:04',\n",
-              "       '2026-01-30 00:35:03', '2026-01-19 09:30:02',\n",
-              "       '2025-12-27 13:10:03', '2026-01-23 18:40:03',\n",
-              "       '2026-01-12 18:35:03', '2026-02-25 19:55:05',\n",
-              "       '2025-12-10 10:05:02', '2026-02-24 16:10:07',\n",
-              "       '2026-02-16 01:35:02', '2025-12-08 16:45:03',\n",
-              "       '2026-01-29 18:00:05', '2025-12-20 07:45:02',\n",
-              "       '2026-01-03 17:05:02', '2026-01-08 02:30:03',\n",
-              "       '2026-02-28 18:45:04', '2025-11-26 07:10:03',\n",
-              "       '2026-01-19 17:50:02', '2026-01-25 22:55:02',\n",
-              "       '2026-03-07 07:40:08', '2026-01-25 13:55:03',\n",
-              "       '2026-01-30 09:10:02', '2026-02-06 14:15:02',\n",
-              "       '2026-01-22 18:00:07', '2026-01-14 00:45:02',\n",
-              "       '2026-02-12 09:20:04', '2026-01-20 20:05:03',\n",
-              "       '2026-01-22 10:40:02', '2026-02-14 05:25:02',\n",
-              "       '2026-03-12 13:05:05', '2026-01-13 00:25:03',\n",
-              "       '2026-02-12 09:35:04', '2026-01-10 07:25:02',\n",
-              "       '2025-12-20 07:25:02', '2026-01-31 17:20:03',\n",
-              "       '2026-03-06 01:05:04', '2026-03-03 18:35:04',\n",
-              "       '2026-01-24 19:05:02', '2026-01-06 12:55:02',\n",
-              "       '2026-02-28 00:50:56', '2026-01-19 22:25:02',\n",
-              "       '2026-01-15 12:55:03', '2026-02-28 03:45:02',\n",
-              "       '2026-01-19 17:00:04', '2026-01-23 20:05:02',\n",
-              "       '2026-02-01 19:20:03', '2026-01-24 03:00:06',\n",
-              "       '2026-01-20 10:25:03', '2026-02-06 18:35:02',\n",
-              "       '2026-01-14 13:30:03', '2025-11-29 09:00:05',\n",
-              "       '2026-03-15 07:20:08', '2026-03-12 07:25:08',\n",
-              "       '2026-01-31 20:05:02', '2026-01-25 15:35:02',\n",
-              "       '2026-01-22 06:50:03', '2026-01-08 00:45:02',\n",
-              "       '2026-01-21 22:10:02', '2026-01-31 20:35:02',\n",
-              "       '2026-01-31 20:40:02', '2026-03-15 00:55:08',\n",
-              "       '2026-03-15 12:30:09', '2026-03-04 19:50:05',\n",
-              "       '2026-03-05 17:20:03', '2025-12-01 17:15:04',\n",
-              "       '2026-01-25 04:55:02', '2026-03-15 01:30:07',\n",
-              "       '2026-01-15 19:25:02', '2026-01-15 19:30:03',\n",
-              "       '2026-02-28 06:25:06', '2026-02-20 00:35:02',\n",
-              "       '2025-12-25 18:15:02', '2026-03-12 00:35:03',\n",
-              "       '2025-12-14 19:00:03', '2026-01-26 05:00:04',\n",
-              "       '2026-01-22 14:25:02', '2026-01-27 19:35:02',\n",
-              "       '2026-03-03 19:25:04', '2026-01-07 17:10:02',\n",
-              "       '2026-02-28 07:00:06', '2026-02-13 18:45:02',\n",
-              "       '2026-01-05 11:40:02', '2026-01-14 01:05:02',\n",
-              "       '2026-03-14 09:15:05', '2025-12-16 03:55:03',\n",
-              "       '2026-02-07 07:50:02', '2025-12-12 00:30:03',\n",
-              "       '2026-03-16 00:40:05', '2026-03-13 07:05:06',\n",
-              "       '2025-12-28 19:50:03', '2026-01-24 12:30:03',\n",
-              "       '2026-03-17 07:05:05', '2026-01-23 02:40:02',\n",
-              "       '2026-03-15 00:30:06', '2026-01-29 19:15:02',\n",
-              "       '2026-02-06 06:00:05', '2026-01-22 23:35:02',\n",
-              "       '2026-02-08 06:30:03', '2025-12-26 01:25:02',\n",
-              "       '2026-03-12 18:20:05', '2026-01-17 09:50:02',\n",
-              "       '2026-01-29 20:20:02', '2026-03-13 00:55:04',\n",
-              "       '2026-01-09 12:35:02', '2026-02-07 19:15:02',\n",
-              "       '2026-03-12 00:35:04', '2026-02-06 07:35:02',\n",
-              "       '2026-03-21 06:40:08', '2026-03-20 13:25:05',\n",
-              "       '2026-03-20 01:30:04', '2026-03-18 18:25:10',\n",
-              "       '2026-03-18 00:45:09', '2026-03-16 00:40:04',\n",
-              "       '2026-03-18 00:45:07', '2026-03-19 07:45:03',\n",
-              "       '2026-03-19 19:35:06', '2026-03-16 01:05:07',\n",
-              "       '2026-03-19 13:25:07', '2026-03-13 18:40:05',\n",
-              "       '2026-03-13 13:05:05', '2026-03-12 07:25:06',\n",
-              "       '2026-03-13 12:45:10', '2026-03-12 19:30:05',\n",
-              "       '2026-03-14 01:05:05', '2026-03-14 20:05:10',\n",
-              "       '2026-03-13 19:35:07', '2026-03-11 06:25:07',\n",
-              "       '2026-03-13 20:55:06', '2026-03-13 00:05:05',\n",
-              "       '2026-03-07 13:15:08', '2026-03-03 19:30:11',\n",
-              "       '2026-02-12 09:25:05', '2025-12-08 18:40:02',\n",
-              "       '2026-01-29 01:00:04', '2026-03-02 06:50:04',\n",
-              "       '2026-02-07 16:25:02', '2026-01-20 00:20:02',\n",
-              "       '2026-03-11 00:25:06', '2026-03-03 19:30:07',\n",
-              "       '2026-03-09 07:10:08', '2026-01-19 22:05:02',\n",
-              "       '2026-01-25 08:10:02', '2026-01-24 04:10:03',\n",
-              "       '2025-12-05 10:05:03', '2026-03-02 12:50:08',\n",
-              "       '2026-01-09 03:00:04', '2026-03-03 01:00:07',\n",
-              "       '2026-03-02 12:50:10', '2026-03-11 02:50:04',\n",
-              "       '2026-02-18 00:25:02', '2026-02-14 00:50:02',\n",
-              "       '2025-12-17 19:20:02', '2025-11-30 01:00:03',\n",
-              "       '2026-02-04 17:15:02', '2026-01-23 15:55:02',\n",
-              "       '2026-01-23 23:45:02', '2026-02-07 19:40:03',\n",
-              "       '2026-01-22 14:40:03', '2026-01-22 15:05:02',\n",
-              "       '2026-02-13 21:05:02', '2025-12-04 09:45:02',\n",
-              "       '2026-01-06 23:10:02', '2026-02-23 12:25:08',\n",
-              "       '2026-02-07 07:25:02', '2026-01-07 12:40:03',\n",
-              "       '2026-01-16 02:55:02', '2026-03-10 19:50:09',\n",
-              "       '2026-02-03 07:20:02', '2025-11-25 19:50:02',\n",
-              "       '2025-12-13 18:25:03', '2026-01-09 12:25:02',\n",
-              "       '2026-03-13 12:30:06', '2026-02-27 13:20:04',\n",
-              "       '2026-01-05 13:40:03', '2025-11-28 06:40:03',\n",
-              "       '2025-11-28 18:00:06', '2026-01-19 22:00:05',\n",
-              "       '2026-03-13 20:55:05', '2026-02-16 07:20:02',\n",
-              "       '2026-01-25 14:05:03', '2026-01-27 19:15:02',\n",
-              "       '2025-11-30 01:05:02', '2025-11-27 20:40:03',\n",
-              "       '2026-01-25 01:20:02', '2026-01-11 13:50:03',\n",
-              "       '2026-01-09 19:20:02', '2026-02-05 15:15:03',\n",
-              "       '2025-11-26 12:50:03', '2026-01-25 14:00:03',\n",
-              "       '2026-01-20 02:30:04', '2025-12-12 06:30:03',\n",
-              "       '2026-02-06 01:50:02', '2026-01-03 16:45:03',\n",
-              "       '2026-02-13 00:20:02', '2026-01-26 19:25:02',\n",
-              "       '2026-02-07 14:15:03', '2026-01-22 10:20:02',\n",
-              "       '2025-12-23 13:15:03', '2026-03-07 00:55:07',\n",
-              "       '2026-03-03 13:00:08', '2026-02-26 12:25:06',\n",
-              "       '2026-02-24 17:05:06', '2026-01-12 21:35:02',\n",
-              "       '2026-02-26 01:35:07', '2026-02-03 18:30:03',\n",
-              "       '2026-01-10 18:25:03', '2026-02-13 01:00:03',\n",
-              "       '2026-01-19 22:10:02', '2026-01-15 07:25:03',\n",
-              "       '2026-02-02 12:10:02', '2025-11-27 01:10:03',\n",
-              "       '2026-01-21 15:30:04', '2026-01-26 18:55:02',\n",
-              "       '2026-03-05 19:35:06', '2026-03-05 16:15:06',\n",
-              "       '2026-02-17 13:05:02', '2026-01-21 16:10:03',\n",
-              "       '2026-02-14 18:25:02', '2026-01-20 13:10:03',\n",
-              "       '2026-01-29 02:00:04', '2025-12-11 01:45:02',\n",
-              "       '2026-01-20 19:20:02', '2026-03-10 00:35:06',\n",
-              "       '2026-03-12 13:50:05', '2026-03-16 18:10:04',\n",
-              "       '2026-03-13 06:55:06', '2026-03-14 13:50:05',\n",
-              "       '2026-03-15 00:35:09', '2026-01-03 16:50:03',\n",
-              "       '2026-01-22 10:25:02', '2026-01-23 19:45:02',\n",
-              "       '2025-12-09 05:55:03', '2026-02-03 00:55:03',\n",
-              "       '2025-12-01 17:20:05', '2026-01-26 13:10:02',\n",
-              "       '2026-01-09 13:05:03', '2026-01-20 02:45:03',\n",
-              "       '2026-01-20 21:45:03', '4 hours ago', '2 hours ago', '3 hours ago',\n",
-              "       '1 day ago', '19 hours ago', '4 days ago', '5 days ago',\n",
-              "       '3 days ago', '19 days ago', '6 days ago', '24 days ago',\n",
-              "       '18 days ago', '20 days ago', '11 days ago', '12 days ago',\n",
-              "       '27 days ago', '23 days ago', '22 days ago', '1 month ago',\n",
-              "       '2 months ago', '10 days ago', '2 days ago', '13 days ago',\n",
-              "       '15 days ago', '17 days ago', '7 days ago', '26 days ago',\n",
-              "       '14 days ago', 'Just now', '16 days ago', '9 mins ago'],\n",
-              "      dtype=object)"
-            ]
-          },
-          "metadata": {},
-          "execution_count": 207
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1393,7 +987,7 @@
       "metadata": {
         "id": "lB-WJMXEz-tM"
       },
-      "execution_count": 184,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -1404,197 +998,10 @@
         "  student_job_fill = await process_none_student_job_mult(session = session, data=student_job_none)"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "4yvdDBl89iO8",
-        "outputId": "e60bfecf-d99c-4b29-96ff-97e32fa7060e"
+        "id": "4yvdDBl89iO8"
       },
-      "execution_count": 185,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-analyst-power-bi-sql-server-job819549: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job820468: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job820469: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job821024: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-phan-tich-va-thiet-ke-mo-hinh-du-lieu-data-analyst-khoi-du-lieu-ho26-29-job819081: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-analyst-middle-senior-job817694: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-chuyen-vien-cao-cap-phan-tich-khach-hang-ca-nhan-data-analyst-retail-banking-khoi-du-lieu-ho25-540-job815281: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job815042: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-scientist-data-analyst-risk-management-up-to-60-mil-vnd-job816228: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job814511: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/intermediate-senior-data-analyst-55k-year-job814193: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-phan-tich-va-thiet-ke-mo-hinh-du-lieu-data-analyst-khoi-du-lieu-ho25-543-job815409: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/junior-data-engineer-python-sql-database-job822944: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-lead-data-engineer-job822999: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-job823050: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-job822915: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job823020: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-lead-data-engineer-job822461: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-job822513: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-senior-data-engineer-english-job822286: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-job822116: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job822164: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job822482: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-senior-data-engineer-english-job821657: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job821786: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-senior-data-engineer-english-job821439: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job821041: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/etl-data-engineer-job820486: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-python-c-postgresql-mysql-job819567: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ky-su-du-lieu-data-engineer-data-engineer-khoi-du-lieu-ho26-31-job819178: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-sql-nosql-hadoop-python-java-job819606: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-middle-level-job819013: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-middle-level-job818520: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-scala-python-sql-job818634: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-middle-level-job818049: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-engineer-gcp-specialist-job818591: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-scala-python-sql-job818178: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-scala-python-sql-job817883: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-engineer-gcp-specialist-job819047: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-khoi-cong-nghe-thong-tin-ho26-16-job816847: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-engineer-gcp-specialist-job818122: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-engineer-gcp-specialist-job817804: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-executive-job816239: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/tmo-data-engineer-manager-job815694: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-khoi-cong-nghe-thong-tin-ho25-504-job815711: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/graph-data-engineer-financial-crime-job815859: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-dba-job815931: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/healthcare-data-engineer-job815506: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ky-su-du-lieu-data-engineer-data-engineer-khoi-du-lieu-ho25-539-job815280: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/lead-data-engineer-azure-etl-job814938: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/graph-data-engineer-financial-crime-job814978: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/tmo-data-engineer-manager-job814817: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-analysis-nifi-jenkins-required-job814999: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-sql-aws-oracle-job814941: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-dba-job815021: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-spark-aws-glue-python-onboard-asap-job814918: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-sql-aws-oracle-job814399: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-dba-job814490: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/lead-data-engineer-azure-etl-job814396: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-analysis-nifi-jenkins-required-job814466: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/graph-data-engineer-financial-crime-job814436: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-sr-data-engineer-azure-aws-ml-english-job814556: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-spark-aws-glue-python-onboard-asap-job814376: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-engineer-40000063-job814022: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/cv-cvc-cvcc-data-engineer-job813994: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-analysis-nifi-jenkins-required-job814143: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-sql-aws-oracle-job814076: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/graph-data-engineer-financial-crime-job814113: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-spark-aws-glue-python-onboard-asap-job814053: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-sr-data-engineer-azure-aws-ml-english-job814248: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-data-engineer-ai-assistant-platform-job813799: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-chuyen-vien-cao-cap-khoa-hoc-du-lieu-data-scientist-data-scientist-khoi-du-lieu-ho26-30-job819082: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/lead-data-engineer-azure-etl-job814073: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-engineer-dba-job814169: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-mo-hinh-va-phan-tich-nang-cao-data-scientist-modeling-and-advanced-analytics-khoi-du-lieu-holt-07-job817685: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-cao-cap-mo-hinh-hoa-va-phan-tich-nang-cao-senior-data-scientist-modeling-and-advanced-analytics-khoi-du-lieu-holt-08-job817686: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-databricks-pandas-pyspark-python-job816362: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-chuyen-vien-cao-cap-khoa-hoc-du-lieu-data-scientist-data-scientist-khoi-du-lieu-ho25-538-job815279: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-customer-profile-job814869: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/group-chief-data-scientist-id661-job814763: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-job814427: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-job814969: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-job814104: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/group-chief-data-scientist-id661-job814019: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-scientist-customer-profile-job814171: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-python-job823098: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-leader-architect-english-job822904: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-job822914: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-workflow-engineer-node-js-ai-automation-job822886: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-ai-data-platform-job822988: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-llm-genai-ai-platform-job822989: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-job823083: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-infrastructure-focus-job822890: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-embedded-qt-architect-c-linux-ai-first-job822597: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-ai-data-platform-job822449: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-pytorch-tensorflow-job822450: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-nlp-ml-job822599: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-job822550: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-python-job822570: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-ai-platform-job822322: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-embedded-qt-architect-c-linux-ai-first-job822206: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-job822154: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/ai-engineer-nlp-ml-job822208: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/applied-ai-engineer-junior-middle-english-job821515: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/applied-ai-engineer-junior-middle-english-job821732: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/fresher-junior-ai-agent-engineer-grit-python-job821688: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/fresher-junior-ai-agent-engineer-grit-python-job821473: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/fullstack-developer-c-c-c-python-sql-job822991: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job823023: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-sr-fullstack-engineer-c-net-react-sql-azure-job822644: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job822485: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/fullstack-developer-c-c-c-python-sql-job822452: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-sr-fullstack-engineer-c-net-react-sql-azure-job822253: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job822088: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job821792: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-science-analyst-sql-python-r-job822601: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-science-analyst-sql-python-r-job822210: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-science-analyst-sql-python-r-job821819: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-sql-job821522: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/mid-sr-fullstack-engineer-c-net-react-sql-azure-job821623: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-architect-data-warehousing-etl-elt-sql-oracle-job821087: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-sql-job821739: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-sql-job820988: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job821049: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-science-analyst-sql-python-r-job821080: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-architect-data-warehousing-etl-elt-sql-oracle-job820533: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/solution-architect-sql-job820665: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-devsecops-engineer-logistics-platform-aws-sql-job820494: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/bi-supervisor-sql-english-job820619: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/middle-database-administrator-sql-nosql-job819534: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-data-science-analyst-sql-python-r-job820526: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/bi-supervisor-sql-english-job819508: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/servicenow-solution-architect-javascript-mysql-sql-job819540: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-golang-developer-aws-postgresql-mysql-job819654: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-architect-data-warehousing-etl-elt-sql-oracle-job819607: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-gia-van-hanh-ha-tang-chung-khoan-database-sql-job819542: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/net-developer-c-winforms-sql-job819026: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-java-developer-spring-mysql-hibernate-job818998: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/middle-database-administrator-sql-nosql-job818993: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-gia-van-hanh-ha-tang-chung-khoan-database-sql-job818925: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-golang-developer-aws-postgresql-mysql-job818896: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/servicenow-solution-architect-javascript-mysql-sql-job819007: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/net-developer-c-winforms-sql-job818542: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-van-hanh-ha-tang-database-sql-job818631: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job818489: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/middle-database-administrator-sql-nosql-job818495: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/servicenow-solution-architect-javascript-mysql-sql-job818511: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-java-developer-spring-mysql-hibernate-job818501: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/middle-database-administrator-sql-nosql-job818024: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/servicenow-solution-architect-javascript-mysql-sql-job818040: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/net-developer-c-winforms-sql-job818071: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-van-hanh-ha-tang-database-sql-job818172: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-java-developer-spring-mysql-hibernate-job818030: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job817839: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job818018: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/net-developer-c-winforms-sql-job817753: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/chuyen-vien-van-hanh-ha-tang-database-sql-job817873: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-java-developer-spring-mysql-hibernate-job817911: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-machine-learning-python-sql-job817518: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job817500: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job817525: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-machine-learning-python-sql-job817534: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/database-reliability-engineer-postgresql-mysql-job816328: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-ai-engineer-machine-learning-python-sql-job816344: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/data-ai-scientist-python-sql-genai-job814875: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-python-engineer-sql-django-api-git-job814982: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/backend-developer-golang-databases-sql-job814920: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/back-end-developer-java-mysql-spring-job815016: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/peoplesoft-developer-pl-sql-oracle-system-admin-job814561: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/backend-developer-golang-databases-sql-job814378: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-python-engineer-sql-django-api-git-job814446: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/peoplesoft-developer-pl-sql-oracle-system-admin-job814253: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/back-end-developer-java-mysql-spring-job814164: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/senior-python-engineer-sql-django-api-git-job814123: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/backend-developer-golang-databases-sql-job814055: float() argument must be a string or a real number, not 'NoneType'\n",
-            "Geocoding failed for https://studentjob.vn/viec-lam/back-end-developer-java-mysql-spring-job814485: float() argument must be a string or a real number, not 'NoneType'\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1606,7 +1013,7 @@
       "metadata": {
         "id": "7aUosflE_3FX"
       },
-      "execution_count": 187,
+      "execution_count": null,
       "outputs": []
     },
     {
@@ -1615,243 +1022,10 @@
         "pd.DataFrame(student_job_fill.get('studentjob'))['created_on'].value_counts()"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 1000
-        },
-        "id": "6tewcxhqApHu",
-        "outputId": "3615b567-fc8f-4504-d16a-2526a9119d7c"
+        "id": "6tewcxhqApHu"
       },
-      "execution_count": 201,
-      "outputs": [
-        {
-          "output_type": "execute_result",
-          "data": {
-            "text/plain": [
-              "created_on\n",
-              "30/12/2025    35\n",
-              "31/12/2025    26\n",
-              "05/03/2026    24\n",
-              "09/03/2026    21\n",
-              "10/03/2026    19\n",
-              "01/01/2026    18\n",
-              "12/03/2026    18\n",
-              "22/01/2026    17\n",
-              "31/01/2026    15\n",
-              "04/03/2026    15\n",
-              "11/02/2026    14\n",
-              "30/01/2026    11\n",
-              "28/02/2026    10\n",
-              "28/01/2026    10\n",
-              "11/03/2026    10\n",
-              "29/01/2026    10\n",
-              "02/03/2026     9\n",
-              "04/02/2026     9\n",
-              "05/02/2026     9\n",
-              "29/12/2025     8\n",
-              "21/01/2026     8\n",
-              "14/01/2026     6\n",
-              "08/03/2026     6\n",
-              "12/02/2026     6\n",
-              "27/02/2026     5\n",
-              "27/01/2026     5\n",
-              "12/01/2026     4\n",
-              "11/01/2026     3\n",
-              "05/01/2026     3\n",
-              "15/01/2026     3\n",
-              "01/03/2026     2\n",
-              "26/01/2026     2\n",
-              "17/01/2026     1\n",
-              "08/01/2026     1\n",
-              "10/01/2026     1\n",
-              "07/01/2026     1\n",
-              "27/12/2025     1\n",
-              "Name: count, dtype: int64"
-            ],
-            "text/html": [
-              "<div>\n",
-              "<style scoped>\n",
-              "    .dataframe tbody tr th:only-of-type {\n",
-              "        vertical-align: middle;\n",
-              "    }\n",
-              "\n",
-              "    .dataframe tbody tr th {\n",
-              "        vertical-align: top;\n",
-              "    }\n",
-              "\n",
-              "    .dataframe thead th {\n",
-              "        text-align: right;\n",
-              "    }\n",
-              "</style>\n",
-              "<table border=\"1\" class=\"dataframe\">\n",
-              "  <thead>\n",
-              "    <tr style=\"text-align: right;\">\n",
-              "      <th></th>\n",
-              "      <th>count</th>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>created_on</th>\n",
-              "      <th></th>\n",
-              "    </tr>\n",
-              "  </thead>\n",
-              "  <tbody>\n",
-              "    <tr>\n",
-              "      <th>30/12/2025</th>\n",
-              "      <td>35</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>31/12/2025</th>\n",
-              "      <td>26</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>05/03/2026</th>\n",
-              "      <td>24</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>09/03/2026</th>\n",
-              "      <td>21</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>10/03/2026</th>\n",
-              "      <td>19</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>01/01/2026</th>\n",
-              "      <td>18</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>12/03/2026</th>\n",
-              "      <td>18</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>22/01/2026</th>\n",
-              "      <td>17</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>31/01/2026</th>\n",
-              "      <td>15</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>04/03/2026</th>\n",
-              "      <td>15</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>11/02/2026</th>\n",
-              "      <td>14</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>30/01/2026</th>\n",
-              "      <td>11</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>28/02/2026</th>\n",
-              "      <td>10</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>28/01/2026</th>\n",
-              "      <td>10</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>11/03/2026</th>\n",
-              "      <td>10</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>29/01/2026</th>\n",
-              "      <td>10</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>02/03/2026</th>\n",
-              "      <td>9</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>04/02/2026</th>\n",
-              "      <td>9</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>05/02/2026</th>\n",
-              "      <td>9</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>29/12/2025</th>\n",
-              "      <td>8</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>21/01/2026</th>\n",
-              "      <td>8</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>14/01/2026</th>\n",
-              "      <td>6</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>08/03/2026</th>\n",
-              "      <td>6</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>12/02/2026</th>\n",
-              "      <td>6</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>27/02/2026</th>\n",
-              "      <td>5</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>27/01/2026</th>\n",
-              "      <td>5</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>12/01/2026</th>\n",
-              "      <td>4</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>11/01/2026</th>\n",
-              "      <td>3</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>05/01/2026</th>\n",
-              "      <td>3</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>15/01/2026</th>\n",
-              "      <td>3</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>01/03/2026</th>\n",
-              "      <td>2</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>26/01/2026</th>\n",
-              "      <td>2</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>17/01/2026</th>\n",
-              "      <td>1</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>08/01/2026</th>\n",
-              "      <td>1</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>10/01/2026</th>\n",
-              "      <td>1</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>07/01/2026</th>\n",
-              "      <td>1</td>\n",
-              "    </tr>\n",
-              "    <tr>\n",
-              "      <th>27/12/2025</th>\n",
-              "      <td>1</td>\n",
-              "    </tr>\n",
-              "  </tbody>\n",
-              "</table>\n",
-              "</div><br><label><b>dtype:</b> int64</label>"
-            ]
-          },
-          "metadata": {},
-          "execution_count": 201
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1860,23 +1034,10 @@
         "  print(i.attributes)"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "0sCV6DKKBRQU",
-        "outputId": "86796de6-def4-420b-82d4-50226b3b7a7e"
+        "id": "0sCV6DKKBRQU"
       },
-      "execution_count": 195,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "{'type': 'hidden', 'name': 'job_lat', 'value': None}\n",
-            "{'type': 'hidden', 'name': 'job_lng', 'value': None}\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1884,29 +1045,10 @@
         "lat"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/",
-          "height": 36
-        },
-        "id": "nACKzTpHBAki",
-        "outputId": "2e299df0-948d-4dea-e56c-729c4ac3a49c"
+        "id": "nACKzTpHBAki"
       },
-      "execution_count": 190,
-      "outputs": [
-        {
-          "output_type": "execute_result",
-          "data": {
-            "text/plain": [
-              "'li.no-border.map-full input'"
-            ],
-            "application/vnd.google.colaboratory.intrinsic+json": {
-              "type": "string"
-            }
-          },
-          "metadata": {},
-          "execution_count": 190
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     },
     {
       "cell_type": "code",
@@ -1921,23 +1063,10 @@
         "print(get_province_offline(10.8199135, 106.6987697))"
       ],
       "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "csV6m_ng60g3",
-        "outputId": "196f309a-447d-4f9a-f976-cc0275b5d9fa"
+        "id": "csV6m_ng60g3"
       },
-      "execution_count": 169,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Loading formatted geocoded file...\n",
-            "Ho Chi Minh City\n"
-          ]
-        }
-      ]
+      "execution_count": null,
+      "outputs": []
     }
   ],
   "metadata": {
