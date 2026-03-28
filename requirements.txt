@@ -13,3 +13,5 @@ playwright-stealth
 asyncio
 databricks-sqlalchemy
 databricks-sql-connector
+dateparser
+selectolax
