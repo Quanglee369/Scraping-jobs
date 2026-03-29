@@ -1,12 +1,14 @@
 import os
 import logging
+import re
 import pandas as pd
 from datetime import datetime
 import numpy as np
+from master_config import province_map
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sqlalchemy import text, create_engine
 from sklearn.metrics.pairwise import cosine_similarity
-from clean_data_functions import prep_data_dim, fast_remove_accents, safe_literal_eval, databricks_hybrid_upsert, sync_fact_job_postings, sync_fact_skill_fast
+from clean_data_functions import prep_data_dim, fast_remove_accents, location_norm, databricks_hybrid_upsert, sync_fact_job_postings, sync_fact_skill_fast, universal_date_cleaner
 
 # Configure logging
 logging.basicConfig(
@@ -20,16 +22,28 @@ logging.basicConfig(
 )
 
 # Check if master data exist, if not create dummy dataframe to avoid error in the next step of data cleaning
-if not os.path.exists('df_master.csv'):
-    df_master = pd.DataFrame()
-    logging.error('[check_master_data] df_master.csv does not exist, create dummy dataframe')
-else:
+master_path = os.path.exists('df_master.csv')
+skill_path = os.path.exists('df_skills.csv')
+
+if master_path and skill_path:
     df_master = pd.read_csv('df_master.csv')
-    print('[check_master_data] df_master exist, begin to check for duplicate data')
+    df_skills = pd.read_csv('df_skills.csv')
+    print('[check_master_data] df_master.csv, df_skills.csv exist, begin to check for duplicate data')
+
+elif not skill_path and master_path:
+    df_master = pd.read_csv('df_master.csv')
+    df_skills = pd.DataFrame()
+    logging.error('[check_skill_data] df_skills.csv does not exist, create dummy dataframe')
+       
+else:
+    df_master = pd.DataFrame()
+    df_skills = pd.DataFrame()
+    print('[check_master_data] df_master.csv and df_skills.csv does not exist, create dummy dataframe for both')
+
 
 # Combination of jobtitle and company name (emp_name)
 compare_text = (df_master['job_title'].str.lower().str.replace(' ', '') + " " +
-df_master['emp_name'].str.lower().str.replace(' ', ''))
+df_master['emp_raw'].str.lower().str.replace(' ', ''))
 
 
 # Check for cosine similarity to filter out if one company post the same job in different websites
@@ -49,20 +63,27 @@ for i in range(len(cosine_sim)):
 # Drop duplicate jobs
 df_master.drop(index = list(drop_index), axis = 0, inplace= True)
 
-# Convert string into list for the skill column
-df_master['skills'] = df_master['skills'].apply(safe_literal_eval)
+job_id_master = list(df_master['job_id'])
+df_skills = df_skills[df_skills['job_id'].isin(job_id_master)]
 
 # Convert date into ISO8601 format
-df_master['date_view']= pd.to_datetime(df_master['date_view'], utc=True, format = 'ISO8601').dt.tz_convert('Asia/Ho_Chi_Minh').dt.date
+df_master['date_view'] = (
+    pd.to_datetime(df_master['date_view'].apply(universal_date_cleaner), utc=True)
+    .dt.tz_convert('Asia/Ho_Chi_Minh')
+    .dt.tz_localize(None)
+)
+df_master['date_view'] = df_master['date_view'].date()
 
 # Standardize location name
-df_master['location_name'] = df_master['location_name'].apply(fast_remove_accents).str.split(" - ").apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else x)
+all_location = [loc.replace(' ', r'\s?') for loc in province_map]
+pattern = re.compile('|'.join(all_location), re.IGNORECASE)
+
+df_master['location_name'] = (df_master['location_name'].apply(lambda x: location_norm(x, pattern = pattern)))
 
 # Create additional column to check if last_seen not equal today then the job is expired -> set is_expire to True
 df_master['last_seen'] = datetime.today().date()
 df_master['is_expired'] = False
 
-df_master.rename(columns = {'label': 'label_name', 'emp_name': 'emp_raw'}, inplace=True)
 
 # Explode and seperate skills data for storage efficiency
 df_skills = df_master[['job_id', 'skills']].explode('skills').dropna(subset=['skills']).reset_index(drop=True)

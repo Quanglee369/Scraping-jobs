@@ -2,44 +2,36 @@ import re
 import logging
 import copy
 import ast
+import dateparser
+import pytz
+from datetime import datetime
 import pandas as pd
+from master_config import all_skills, en_keywords, vn_keywords, mh_words,nega_keyword, keys_for_platforms, api_data_cols
 from sqlalchemy import text
+from typing import List, Union, Dict, Any
 
-# [FUNCTION] Filter out relevant job header, as the primary focus is data related job (data engineer, data scientist and dat analyst)
-def filter_relevant(data, platform: str):
+
+def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
   """Remove none-relevant jobs
   Args:
     data (list of dicts): List of dict with jobs information
     platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
-  
+
   Returns:
-    list of dicts: The filtered list 
+    filtered_job (list of dicts): The filtered list contain dicts with job information
   """
-
-  # Define keywords must be present in the job title 'mh_words' and keywords should be present 'en_keywords' + 'vn_keywords'
-  en_keywords = ['intelligence', 'bi', 'developer','head','insights', 'processing', 'mining', 'reporting', 'modeling', 'model','expert', 'computer vision', 'analyst', 'analytics', 'analyse', 'engineering','engineer', 'database', 'governance', 'administrator', 'science', 'scientist', 'architect']
-  vn_keywords = ['xử lý', 'khai thác', 'thống kê', 'quản trị', 'quản lý', 'kỹ thuật', 'thị giác máy tính', 'khoa học']
-  mh_words = ['data', 'phân tích', 'database', 'dữ liệu', 'ai', 'computer vision', 'thị giác máy tính', 'modeling', 'model', 'sql', 'intelligence']
-
-  # Also define keywords that should not be present
-  nega_keyword = ['entry', 'kiểm toán','auditor', 'tester', 'qc','security', 'bảo mật', 'ib', 'sale', 'sales', 'full stack', 'backend', 'frontend', 'java engineer', 'spring boot', 'back-end', 'front-end', 'full-stack', 'web', 'software', 'android', 'ios', 'mobile', 'qa', 'business']
-
-  # Each platform have a different way of naming key values so createing a dict to mapping based on platform of choice
-  keys_for_platforms = {
-      'careerviet': ['job_title', 'job_id'],
-      'vietnamworks': ['jobTitle', 'jobId'],
-      'itviec': ['job_title', 'job_id']
-  }
 
   # Check if platform is valid and exist in the predefined list
   clean_platform = platform.strip().replace(' ', '').lower()
 
   if clean_platform not in keys_for_platforms.keys():
-    return logging.error(f'Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()}')
+    print(f'Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
+    clean_platform = 'other'
 
   # Check if data is valid
-  if not data:
+  if not item:
     logging.error('[filter_relevant] Data invalid !')
+    return []
 
   job_title = keys_for_platforms.get(clean_platform)[0]
 
@@ -51,32 +43,55 @@ def filter_relevant(data, platform: str):
 
   # Processing data that match the predefined pattern
   filtered_job = []
- 
-  try:
-    filtered_job =[
-        item for item in data
-        if mh_pattern.search(item.get(job_title, '')) and
-        pos_pattern.search(item.get(job_title, '')) and
-        not neg_pattern.search(item.get(job_title, ''))
-    ]
 
+  try:
+    for i in item:
+            raw_title = i.get(job_title)
+            if not raw_title:
+              return logging.warning(f'[filter_relevent] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is not data at all')
+
+            # 1. Fix the "Cake" formatting (CamelCase to Spaces)
+            normalized_title = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw_title)
+
+            # 2. Run your filters on the normalized title
+            is_must_have = mh_pattern.search(normalized_title)
+            is_positive = pos_pattern.search(normalized_title)
+            is_negative = neg_pattern.search(normalized_title)
+
+            if is_must_have and is_positive and not is_negative:
+                filtered_job.append(i)
     return filtered_job
 
   except Exception as e:
     logging.error(f'[filter_relevant] Unable to clean data and prepare for AI input, error detail: {e}')
-    return [], []
+    return []
 
-# [FUNCTION] Remove duplicated job based on id as job can be duplicated when searching for closely related position (example: Data Analysis might have duplicated job with Data Scientist)
-# Also label explicit title (title contain keywords like 'Data Analyst', ...)
+def filter_relevant_mult(data: List[Dict[str, Any]]) -> Dict[str, List]:
+  """
+  This function is use to process batch data for filter_relevant function
+  Args:
+    data (list of dicts): list of dict containing platform name as key and job information as value
 
-def remove_duplicate(job, platform: str, exist_job_id):
-  """ Remove duplicate jobs
-  args:
-    job (list of dicts): list of dict with jobs information
-    platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
-    exist_job_id (dataframe): dataframne of job_id already exist in the database
+  Return:
+    filtered_data (dict): a dict contain key as platform name and value as filtered value returned from filter_relevant function
+  """
+  filtered_data = {}
+  for i in data:
+    for key, value in i.items():
+      if key not in filtered_data.keys():
+        filtered_data[key] = filter_relevant(item = value, platform = key)
+      else:
+        filtered_data[key].extend(filter_relevant(item = value, platform = key))
+  return filtered_data
 
-  returns:
+def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame) -> List[Dict]:
+  """Remove duplicate jobs
+  Args:
+    item (list of dicts): list of dict with jobs information
+    platform (str): name of the available platform
+    exist_job_id (dataframe): dataframe of job_id already exist in the database
+
+  Returns:
     cleaned (list of dict): list of dict with filtered jobs information
     input_ai (list of dict): list of dict with job_id and job_title for AI labeling
   """
@@ -86,11 +101,6 @@ def remove_duplicate(job, platform: str, exist_job_id):
   seen_id = set()
   exist_id = set(exist_job_id['job_id'].astype(str)) if exist_job_id is not None and not exist_job_id.empty else set()
 
-  keys_for_platforms = {
-      'careerviet': ['job_title', 'job_id'],
-      'vietnamworks': ['jobTitle', 'jobId'],
-      'itviec': ['job_title', 'job_id']
-  }
 
   # Intialize dict for labeling to reduce AI payload
   label_mapping = {
@@ -105,11 +115,12 @@ def remove_duplicate(job, platform: str, exist_job_id):
   clean_platform = platform.strip().replace(' ', '').lower()
 
   if clean_platform not in keys_for_platforms.keys():
-    return logging.error(f'[remove_duplicate] platform: {clean_platform} is not in the list: {keys_for_platforms.keys()}')
+    print(f'[remove_duplicate] platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
+    clean_platform = 'other'
 
   # Check if data is valid
-  if not job:
-    logging.error('[remove_duplicate] Invalid job data')
+  if not item:
+    print('[remove_duplicate] Invalid job data')
     return [], []
   cleaned = []
 
@@ -120,8 +131,10 @@ def remove_duplicate(job, platform: str, exist_job_id):
 
   # Loop through each job, only return the one that is not yet exist in the list
 
-  for i in job:
+  for i in item:
     raw_id = i.get(job_id)
+    if not raw_id:
+      return print('[remove_duplicate] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is not data at all')
     job_id_inner = str(raw_id) if raw_id is not None else None
     if not job_id_inner or job_id_inner in seen_id:
       continue
@@ -140,60 +153,36 @@ def remove_duplicate(job, platform: str, exist_job_id):
   input_ai = [{'job_id': i.get(job_id), 'job_title': i.get(job_title)} for i in cleaned if i.get('label') == '' and str(i.get(job_id)) not in exist_id]
   return cleaned, input_ai
 
-# [FUNCTION] Function to extract skills from JD
-def extract_skills_from_jd(job_list):
+def remove_duplicate_multi(data: Dict[str, List], exist_job_id: pd.DataFrame) -> Dict[str, List]:
+  """This function is used for handle batch process of remove_duplicate function
+  Args:
+    data (dict): a dict contain key as platform namd and value as list of dict containing job info
+    exist_job_id (dataframe): dataframe of already exist job id in the database
+  Return:
+    nondupdata (dict): a dict with key as platform name and value as list of dicts contain job information
+    input_ai (dict): a dict with key as platform name and value as list of dicts contain job id and job title for AI relabel
+  """
+  nondupdata = {}
+  input_ai = {}
+
+  for key, value in data.items():
+    filtered_data = remove_duplicate(item = value, platform=key, exist_job_id= exist_job_id)
+    if key not in nondupdata.keys() and key not in input_ai.keys():
+      nondupdata[key] = filtered_data[0]
+      input_ai[key] = filtered_data[1]
+    else:
+      nondupdata[key].extend(filtered_data[0])
+      input_ai[key].extend(filtered_data[1])
+  return nondupdata, input_ai
+
+def extract_skills_from_jd(job_list: List[Dict[str, str]]) -> List[Dict[str, List]]:
   """Extract skills from Job Descriptions
   Args:
     job_list (list of dict): list of dict with Job Id and Job Descriptions to extract skills
 
   Returns:
-    results (list of dict): list of dict with Job Id and skill names
+    results (list of dict): list of dict with Job Id and skill names as list
   """
-  # Define all keywords for skills need to be matched
-  all_skills = [
-      # Programming & Scripting
-      "Python", "SQL", "R", "Java", "Scala", "C++", "C#", "VBA", "JavaScript",
-      "TypeScript", "HTML", "CSS", "Bash", "Shell Scripting", "Go", "Julia", "SAS", "MATLAB",
-
-      # Databases
-      "MySQL", "PostgreSQL", "Oracle Database", "Microsoft SQL Server", "MongoDB",
-      "Redis", "Cassandra", "DynamoDB", "MariaDB", "DB2", "Netezza", "Elasticsearch",
-      "Neo4j", "ClickHouse", "Vector Databases",
-
-      # Cloud & Infrastructure
-      "AWS", "Microsoft Azure", "GCP", "S3", "EC2", "Lambda", "Glue", "Athena",
-      "Redshift", "Kinesis", "Azure Data Factory", "Azure Synapse Analytics",
-      "Azure Data Lake", "Azure Blob Storage", "Google BigQuery",
-      "Google Cloud Storage", "Firebase",
-
-      # Big Data & Frameworks
-      "Apache Spark", "PySpark", "Hadoop", "HDFS", "MapReduce", "Apache Kafka",
-      "Apache Flink", "Apache Storm", "Hive", "Presto", "Trino", "Databricks",
-      "Delta Lake", "Snowflake",
-
-      # ETL & Orchestration Tools
-      "Apache Airflow", "dbt", "SSIS", "Talend", "Informatica", "Pentaho",
-      "Oracle Data Integrator", "ODI", "Luigi", "Prefect", "Nifi",
-
-      # BI & Visualization Tools
-      "Power BI", "Tableau", "QlikView", "QlikSense", "Looker", "Google Looker Studio",
-      "Metabase", "Superset", "Excel", "Power Query", "DAX", "Cognos", "MicroStrategy",
-      "SAP Analytics Cloud", "Grafana", "Kibana",
-
-      # AI, ML & NLP Libraries
-      "Scikit-learn", "TensorFlow", "PyTorch", "Keras", "XGBoost", "LightGBM",
-      "CatBoost", "Fastai", "Hugging Face", "Transformers", "OpenCV", "LangChain",
-      "LlamaIndex", "BERT", "GPT", "Computer Vision"
-
-      # Deployment & DevOps
-      "MLflow", "Kubeflow", "Triton Inference Server", "TensorFlow Serving",
-      "TorchServe", "RayServe", "Docker", "Kubernetes", "Jenkins", "GitLab CI",
-      "GitHub Actions", "Terraform", "Ansible",
-
-      # Technical Protocols
-      "Rest API", "GraphQL"
-  ]
-
   # Descending sort order so this prioritize longer word over shorter one (example: Power BI -  matching Power first before looking at BI)
   all_skills.sort(key=len, reverse=True)
   pattern = re.compile(r'\b(' + '|'.join(map(re.escape, all_skills)) + r')\b', re.IGNORECASE)
@@ -201,14 +190,14 @@ def extract_skills_from_jd(job_list):
   results = []
   if not job_list or not isinstance(job_list,list):
     return results
-    
+
   for job_entry in job_list:
       if not job_entry:
-        return results
+        continue
       for job_id, jd in job_entry.items():
-           if not jd:
-              results.append({'job_id': job_id, 'skills': []})
-              continue
+           if not jd or jd == 'None':
+             results.append({'job_id': job_id, 'skills': []})
+             continue
 
            # Find all matching key word in jd
            found_skills = pattern.findall(jd)
@@ -220,48 +209,50 @@ def extract_skills_from_jd(job_list):
 
   return results
 
-# [FUNCTION] Fill in the label result from AI
-def fill_label(data, label_data, platform: str):
+def extract_skills_from_jd_mult(data: Dict[str, List[Dict[str, str]]])-> Dict[str, List[Dict[str, List]]]:
+  """This function is use to handle batch process of the function
+  Args:
+    data (dict of list): dict of list with key as platform name, the list contain dicts with key as job id and value as job desc
+
+  Returns:
+    final_result (dict of list): dict of list with key as platform name, the list contain dict with key as job id and value as skill list
+  """
+  final_result = {}
+  for key, value in data.items():
+    if key not in final_result.keys():
+      final_result[key] = extract_skills_from_jd(job_list = value)
+    else:
+      final_result[key].extend(extract_skills_from_jd(job_list = value))
+  return final_result
+
+def fill_label(data: List[Dict], label_data: Dict) -> List[Dict]:
   """Fill label results from AI output
-  args:
+  Args:
     data (list of dict): list of dict with job information
-    label_data (list of dict): list of dict with job id and job label result from AI
-    platform (str): name of the platform, must exist in this list (careerviet, vietnamworks, itviec)
-  returns:
+    label_data (dict): a dict with job id as key and job label result from AI as value
+  Returns:
     temp_date (list of dict): list of dict with job information (labeled)
   """
-  keys_for_platforms = {
-      'careerviet': ['job_title', 'job_id'],
-      'vietnamworks': ['jobTitle', 'jobId'],
-      'itviec': ['job_title', 'job_id']
-  }
 
-  clean_platform = platform.replace(' ', '').lower()
-  
-  if clean_platform not in keys_for_platforms.keys():
-    logging.error(f'[fill_label] platform is not in the list : {keys_for_platforms.keys()}')
-    return []
-  
   if not data:
-    logging.warning(f'[fill_label] data invalid for {clean_platform}')
+    print(f'[fill_label] data invalid')
     return []
-    
-  if not label_data:
-    logging.warning(f'[fill_label] label data invalid for {clean_platform} proceed with blank label')
-    label_data = {}
 
-  job_id = keys_for_platforms.get(clean_platform)[1]
+  if not label_data:
+    print(f'[fill_label] label data invalid for proceed with blank label')
+    label_data = {}
 
   temp_data = copy.deepcopy(data)
   for i in temp_data:
-    if i.get(job_id) in label_data:
-      i['label'] = label_data.get(i.get(job_id))
-    elif i.get('label') == '':
+    job_id = i.get('job_id')
+    label = i.get('label')
+    if job_id in label_data:
+      i['label'] = label_data.get(job_id)
+    elif label == '':
       i['label'] = 'None'
   return temp_data
 
-# [FUNCTION] Remove accents, convert Vietnamese into ASCII format
-def fast_remove_accents(text):
+def fast_remove_accents(text: str)-> str:
     """Remove accents and convert Vietnamese into ASCII-friendly format
     args:
       text (str): String need to be processed
@@ -296,8 +287,33 @@ def fast_remove_accents(text):
     trantab = str.maketrans(intab, outtab)
     return text.translate(trantab).strip()
 
-# [FUNCTION] Prepare data as a list of dict with unique value to update dim tables
-def prep_data_dim(data, collist):
+def location_norm(loc: Any, pattern) -> str:
+  """Convert location name into string, ASCII friendly format
+  Args:
+    loc (any): can be list of string contain location name
+    pattern = regex pattern to match 
+
+  Returns:
+    location name (string): cleaned location name as string
+  """
+  if not loc:
+    return 'Other'
+  if isinstance(loc, list):
+    loc = fast_remove_accents(', '.join(loc).strip())
+  elif isinstance(loc, str):
+    loc = fast_remove_accents(loc)
+    
+  result = pattern.findall(loc.strip())
+  unique_results = list(dict.fromkeys(result))
+
+  if len(unique_results) > 1:
+    return(', '.join(unique_results))
+  elif len(unique_results) == 1:
+    return(unique_results[0])
+  else:
+    return('Other')
+
+def prep_data_dim(data: pd.DataFrame, collist: List) -> List[pd.DataFrame]:
   """Prepare data to update dim tables in database
   args:
     data (dataframe): clean dataframe of job data need to be processed
@@ -317,7 +333,68 @@ def prep_data_dim(data, collist):
       results.append(pd.DataFrame(unique_vals, columns = [i]))
   return results
 
-# [FUNCTION] Convert the string representation back to a Python list
+def universal_date_cleaner(date_val: Any)-> datetime:
+  """Convert date from multipe format
+  Args:
+    date_val (any): date data in various format from string to unix time (float)
+
+  Returns:
+    return converted datetime data
+  """
+
+  vn_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+  settings = {'RELATIVE_BASE': datetime.now(vn_tz)}
+  none_date = datetime(1990,10,10)
+
+  if pd.isna(date_val) or date_val == 'None':
+      return none_date
+
+  if isinstance(date_val, (int, float)):
+      unit = 'ms' if len(str(int(date_val))) == 13 else 's'
+      return pd.to_datetime(date_val, unit=unit, utc=True)
+
+  dt = dateparser.parse(str(date_val), settings= settings)
+  if not dt:
+      return none_date
+
+  if dt.tzinfo is None:
+      return vn_tz.localize(dt).astimezone(pytz.UTC)
+
+  return dt.astimezone(pytz.UTC)
+
+def merge_df_master(data: List[Any]) -> pd.DataFrame:
+  """Merge all dicts and lists into a unify dataframe
+  Args:
+    data (list): a list contain all final data, could be dict or list
+
+  Returns:
+    df (dataframe): a dataframe of unify all extracted data
+  """
+  df_list = []
+  standard_cols = api_data_cols.get('other')
+  df = pd.DataFrame(columns =  standard_cols)
+  for i in data:
+    try:
+      if isinstance(i, dict):
+        for key, value in i.items():
+          required_cols_dict = api_data_cols.get(key)
+          if not required_cols_dict:
+            print(f'keyword {key} not in api_data_cols keys: {list(api_data_cols.keys())} proceed with other option')
+            required_cols_dict = api_data_cols.get('other')
+
+          temp_df = pd.DataFrame(value).loc[:, required_cols_dict]
+          temp_df.columns = standard_cols
+          df_list.append(temp_df)
+      else:
+          temp_df = pd.DataFrame(i).loc[:, standard_cols]
+          df_list.append(temp_df)
+    except Exception as e:
+      print(f'Unable to process data, error, {e}')
+
+  df = pd.concat(df_list, axis=0, ignore_index=True)
+
+  return df
+
 def safe_literal_eval(val):
     try:
         if isinstance(val, str) and val.startswith('['):
@@ -326,12 +403,12 @@ def safe_literal_eval(val):
     except:
         return []
     
-def sync_fact_job_postings(df, engine):
+def sync_fact_job_postings(df: pd.DataFrame, engine)-> None:
     """Update fact_job_postings table in database
-    args:
+    Args:
       df (dataframe): dataframe of job information
       engine (sqlalchemy object): engine to connect and interact with database
-    returns:
+    Returns:
       None
     """
     if df.empty:
@@ -386,12 +463,13 @@ def sync_fact_job_postings(df, engine):
         logging.error(f'[sync_fact_job_postings] Error in merging with the main table, error detail: {e}')
         return
 
-def sync_fact_skill_fast(df, engine):
+def sync_fact_skill_fast(df: pd.DataFrame, engine)-> None:
     """Update fact_skill table in database
-    args:
+    Args:
       df (dataframe): dataframe of job information
       engine (sqlalchemy object): engine to connect and interact with database
-    returns:
+
+    Returns:
       None
     """
     if df.empty:
@@ -435,12 +513,13 @@ def sync_fact_skill_fast(df, engine):
         logging.error(f"[sync_fact_skill_fast] Error in updating main database, error detail: {e}")
         return
 
-def databricks_hybrid_upsert(df, target_table, unique_key, columns_to_update, engine):
-    """
-    df: The pandas DataFrame (e.g., location_dim_df)
-    target_table: The table name in Databricks
-    unique_key: The column to match on (e.g., 'location_name')
-    columns_to_update: List of columns to update if match found (excluding the ID)
+def databricks_hybrid_upsert(df: pd.DataFrame, target_table: str, unique_key: str, columns_to_update: List, engine) -> None:
+    """Update dim tables using upsert logic into databricks
+    Args:
+      df (dataframe): The pandas DataFrame (e.g., location_dim_df)
+      target_table (str): The table name in Databricks
+      unique_key (str): The column to match on (e.g., 'location_name')
+      columns_to_update (list): List of columns to update if match found (excluding the ID)
     """
     if df.empty or len(columns_to_update) < 0:
         raise ValueError('dataframe is empty or list of updated column is emtpy')
