@@ -1,11 +1,11 @@
 import asyncio
 import logging
-import httpx
 import re
 import hashlib
+import random
 import json
 import time
-import pandas as pd
+from selectolax.parser import HTMLParser
 from datetime import timedelta, datetime
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
@@ -14,84 +14,378 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
-from typing import List, Literal, Union
+from master_config import html_scraping_dict, api_scraping_dict, jd_dict_selector
+from typing import List, Literal, Union, Dict, Any
+import aiohttp
 import os
 
 
-# [FUNCTION] Fetch JD from each link, only apply to Careerviet as they do not have skill section in the job headers
-# Use asyncio.Semaphore at 10 requests each to prevent getting flagged
-async def fetch_jd_careerviet(client, item, sem = asyncio.Semaphore(10)):
-  # Replace locale as the default locale in api is "en" which is not accessible
-  link = item.get('job_link').replace('https://careerviet.vn/en/', 'https://careerviet.vn/vi/')
-  job_id = item.get('job_id')
-  headers = {
-    'Origin': 'https://careerviet.vn',
-    'Referer': 'https://careerviet.vn/',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0'
-} # Adding headers to prevent getting flagged
-  async with sem:
-    try:
-      response = await client.get(link, headers = headers, timeout = 10)
-      # Filter the JD from html response (converted to text)
-      if '__next_f.push([1,"{\\"@context\\"' in response.text:
-        clean_text = response.text.split('__next_f.push([1,"{\\"@context\\')[1].split('Ngành nghề:')[0].split('description')[1]
-        return {job_id: clean_text}
+async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, sem=asyncio.Semaphore(10))-> Dict[str, str]:
+    """Get job description info from links
+    Args:
+      session: aiohttp session
+      item (dict): a dict that contain info of a job
+      platform (str): name of the available platform
+      sem: asyncio.semaphore at 10 request each time to prevent api ban
 
-    except Exception as e:
-      logging.error(f'[fetch_jd_careerviet] Error when fetching link {link}, detail: {e}')
-      print(f'[fetch_jd_careerviet] Error when fetching link {link}, detail: {e}')
-      return None
+    Return:
+      final_jd_data (dict): a dict with key as job id and value as job description
+    """
 
-# [FUNCTION] Create list of tasks to use asyncio for concurency of fetch_jd_careerviet
-async def get_all_jobs(data):
-  async with httpx.AsyncClient() as client:
-    task = [fetch_jd_careerviet(client, item) for item in data]
-    results = await asyncio.gather(*task)
-    if results:
-      return results
+    # Extract configuration based on platform
+    config = jd_dict_selector.get(platform)
+    if not config:
+      logging.error(f'[fetch_jd] Plaform {platform} is not in the list {list(jd_dict_selector.keys())}')
+      return {}
+    
+    if not item:
+      logging.error(f'[fetch_jd] Input data empty or invalid, data len: {len(item)}')
+      return {}
+
+    # Logic for CareerViet specific locale replacement
+    job_link_name = config.get('job_link_header')
+    job_desc = config.get('job_desc')
+    header = config.get('headers')
+    retry = 1
+
+    while retry < 4:
+      async with sem:
+        try:
+            job_id = item.get('job_id')
+            job_link = item.get(job_link_name)
+            if platform == 'careerviet':
+              job_link = job_link.replace('https://careerviet.vn/en/', 'https://careerviet.vn/vi/')
+            # Perform the request
+            response = await session.get(job_link, headers=header, timeout=10)
+
+            if response.status == 200:
+              break
+
+            elif response.status == 429:
+              logging.error(f"Error, too many request for platform {platform} link: {job_link} retry for {retry} time")
+              await asyncio.sleep(2**retry)
+              retry += 1
+              continue
+
+            elif response.status == 404:
+              return {}
+
+            elif response.status != 200:
+              logging.error(f"[fetch_jd] Error, status code: {response.status} for platform: {platform} link: {job_link}")
+              return {job_id: ''}
+
+        except Exception as e:
+            logging.error(f'[fetch_jd_careerviet] Error when fetching link {job_link}, detail: {e}')
+            return {}
+
+    # Filter the JD from html response
+    jd_text = await response.text()
+    jdhtml = HTMLParser(jd_text)
+
+    clean_text = ''
+    # Iterate through the selectors to extract text
+    for i in jdhtml.css(job_desc):
+          clean_text += i.text(strip=True) + " "
+
+    return {job_id: clean_text.strip()}
+
+async def fetch_jd_mult(session: aiohttp.ClientSession, data: Dict[str, List]) -> Dict[str, List]:
+  """This function is used to handle batch process of the fetch_jd function
+  Args:
+    session: aiohttp session
+    data (dict): a dict with key as platform name and value as list of dict that contain job information
+
+  Return:
+    final_data (dict): a dict with key as platform name and value as list of dict contain job description and its job id
+  """
+  final_data = {}
+  for key, value in data.items():
+    task = [fetch_jd(session = session, item = single_val, platform = key) for single_val in value]
+    extracted_jd = await asyncio.gather(*task)
+    if key not in final_data.keys():
+      final_data[key] =  extracted_jd
     else:
-      return None
+      final_data[key].extend(extracted_jd)
+  return final_data
 
-# [FUNCTION] Get job headers based on position and platform
-async def fetch_job_headers(session, keyword: str, platform: str):
+async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_num: int,platform: str) -> Dict[str, List]:
+    """Scrap job information directly from website api
+    Args:
+      session: aiohttp session
+      keyword (str): name of the search keyword such as Data Analyst, Data Engineer, etc.
+      platform (str): name of the available platform
+      page_num (int): number of page
 
-# Default number of maximum return is 200
-  payload_careerviet = {
-    'keyword': keyword,
-    'limit': 200
-}
+    Return:
+      A dict with key as platform name and value as list of dict contain job data from website apis
+    """
 
-  payload_vietnamworks = {
-      "query": keyword,
-      "hitsPerPage": 200
-  }
+    clean_platform = platform.lower().strip()
 
-  url_careerviet = 'https://internal-api.careerviet.vn/api/v1/js/jsk/jobs/public'
-  url_vietnamworks = 'https://ms.vietnamworks.com/job-search/v1.0/search'
+    # Check to ensure platform name is valid
+    if clean_platform not in api_scraping_dict:
+        logging.error(f'[fetch_job_headers] Keyword: {clean_platform} does not match any of the list {list(api_scraping_dict)}')
+        return {}
 
-  mapping_dict = {'careerviet': [payload_careerviet, url_careerviet],
-                  'vietnamworks': [payload_vietnamworks, url_vietnamworks]}
+    config = api_scraping_dict[clean_platform]
+    url = config.get('url')
+    payload = config.get('payload')
+    params = {}
+    for key, value in payload.items():
+      if isinstance(value, str):
+        params[key] = value.format(keyword = keyword, page_num = page_num)
+      else:
+        params[key] = value
+    header = config.get('header')
+    retry = 1
+    data = {}
 
-  clean_platform = platform.lower().strip()
-  # Check to ensure platform name is valid
-  if clean_platform not in mapping_dict.keys():
-    return print(f'[fetch_job_headers] Keyword: {clean_platform} does not match any of the list {mapping_dict.keys()}')
+    while retry < 4:
+      try:
+          # For vietnamworks api, using POST not GET
+          if clean_platform == 'vietnamworks':
+              async with session.post(url=url, json=params, headers=header) as response:
+                  if response.status == 200:
+                    data = await response.json()
+                    break
+                  elif response.status == 429:
+                    logging.warning(f'[fetch_job_headers] Too many request, proceed to retry {retry} time(s)')
+                    await asyncio.sleep(2 ** retry)
+                    retry += 1
+                    continue
+                  else:
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}')
+                    break
 
-  # For vietnamworks api, using POST not GET
+          else:
+              async with session.get(url=url, params=params, headers=header) as response:
+                  if response.status == 200:
+                      data = await response.json()
+                      break
+                  elif response.status == 429:
+                    logging.warning(f'[fetch_job_headers] Too many request, proceed to retry {retry} time(s)')
+                    await asyncio.sleep(2 ** retry)
+                    retry += 1
+                    continue
+                  else:
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}')
+                    break
+
+      except Exception as e:
+          print(f'[fetch_job_headers] Can not get job headers for position {keyword}, Error: {e}')
+          return {}
+
+    if data and isinstance(data, dict):
+      return {clean_platform: data.get('data', [])}
+
+    return data
+
+async def html_scraping(keyword: str, platform: str, page_num: int, session: aiohttp.ClientSession, sem =  asyncio.Semaphore(10)) -> List[Dict[str, Any]]:
+    """Scrap job informations from html data
+    Args:
+      keyword (str): name of the search keyword such as Data Analyst, Data Engineer, etc.
+      platform (str): name of the available platform
+      page_num (int): number of page
+      session: aiohttp session
+      sem: asyncio.semaphore at 10 request each time to prevent api ban
+
+    Return:
+      final_data (list of dict): list of dict with key as platform name and value as a dict contain job information
+    """
+
+    # 1. Config Retrieval & Validation
+    current_config = html_scraping_dict.get(platform)
+    if not current_config:
+        print(f"Error: {platform} not found in config.")
+        return []
+
+    # 2. Variable Preparation
+    url_template = current_config.get('url', '')
+    url = url_template.format(keyword=keyword)
+
+    raw_payload = current_config.get('payload', {})
+    params = {}
+    if isinstance(raw_payload, dict):
+        for k, v in raw_payload.items():
+            params[k] = str(v).format(keyword=keyword, page_num=page_num)
+
+    domain = current_config.get('domain', '')
+    selectors = current_config.get('selector', {})
+    headers = current_config.get('header', {})
+
+    final_data = {platform: []}
+    html_data = None  # 1. Initialize as None at the top
+    retry = 1
+
+    # 3. Network Request
+    while retry < 4:
+      async with sem:
+        try:
+          await asyncio.sleep(random.uniform(1.5, 4.0))
+          async with session.get(url, params=params, headers=headers, timeout=15) as response:
+              if response.status == 200:
+                html_data = await response.text()
+                break
+
+              elif response.status == 429:
+                logging.warning(f"[html_scraping] Too much request, retry {retry} time")
+                retry += 1
+                await asyncio.sleep(2**retry)
+                continue
+
+              else:
+                logging.error(f"[html_scraping] Failed to fetch {platform}: Status {response.status}, Keyword: {keyword}, Page_num: {page_num}")
+                break
+
+        except Exception as e:
+            logging.error(f"Connection error for {platform}: {e}")
+            return final_data
+
+    if not html_data:
+        return final_data
+
+    # 4. Parsing Logic
+    parser = HTMLParser(html_data)
+    container_selector = selectors.get('container')
+
+    if not container_selector:
+        return []
+
+    for card in parser.css(container_selector):
+        # HELPER: Safe extraction to prevent NoneType crashes
+        def get_text(sel_key: str) -> str:
+            sel = selectors.get(sel_key)
+            if not sel or sel == "None":
+                return "None"
+            node = card.css_first(sel)
+            return node.text(strip=True) if node else "None"
+
+        def get_attr(sel_key: str, attr: str) -> str:
+            sel = selectors.get(sel_key)
+            if not sel or sel == "None":
+                return "None"
+            node = card.css_first(sel)
+            return node.attributes.get(attr, "None") if node else "None"
+
+        # Field Extraction
+        title = get_text('job_title')
+        employer = get_text('emp_name')
+        location = get_text('location_name')
+
+        # Link Logic (Handle relative vs absolute)
+        raw_href = get_attr('job_link', 'href')
+        full_link = raw_href if raw_href.startswith('http') or raw_href == "None" else f"{domain}{raw_href}"
+
+        # Created On Logic (Special Case: Attributes)
+        if platform == 'job123':
+            # Job123 stores date in data-time on the card itself
+            created = card.attributes.get('data-time', "None")
+        elif platform == 'careerlink':
+            # Careerlink stores it in an attribute of a specific span
+            created = get_attr('created_on', 'data-datetime')
+        else:
+            created = get_text('created_on')
+
+        # Job Description Logic
+        description = get_text('job_desc')
+
+        final_data[platform].append({
+            'job_id': hashlib.md5(full_link.encode('utf-8')).hexdigest(),
+            'job_title': title,
+            'emp_name': employer,
+            'location_name': location,
+            'job_link': full_link,
+            'created_on': created,
+            'job_desc': description
+        })
+
+    return final_data
+
+async def process_none_student_job( item: Dict, session: aiohttp.ClientSession,sem = asyncio.Semaphore (10))-> Dict:
+  """Get location, created date specifically for student job site
+  Args:
+    item (dict): a dict containing job info for a job
+    session: aiohttp session
+    sem: asyncio.semaphore at 10 request each time to prevent api ban
+
+  Returns:
+    jd_data_text (dict): a dict containing job info for a job
+
+  """
+  lat = jd_dict_selector.get('studentjob').get('lat')
+  header =  jd_dict_selector.get('studentjob').get('headers')
+  created_on = jd_dict_selector.get('studentjob').get('created_on')
+  link = item.get('job_link')
+
+  jd_data_text = None
+
+  retry = 1
+  while retry < 4:
+    async with sem:
+      try:
+        async with await session.get(link, headers = header, timeout = 10) as jd_data:
+          if jd_data.status == 200:
+            jd_data_text = await jd_data.text()
+            break
+
+          elif jd_data.status == 429:
+            logging.warning(f'[process_none_student_job] Too much request for link: {link} proceed to retry: {retry} time(s)')
+            retry += 1
+            await asyncio.sleep(2**retry)
+            continue
+
+          elif jd_data.status != 200:
+            logging.error(f'[process_none_student_job] Error when retrieving data for link: {link} status code: {jd_data.status}')
+            return item
+      except Exception as e:
+        logging.error(f"[process_none_student_job] Connection error: unable to access link: {link} error: {e}")
+        return item
+
+  if not jd_data_text:
+        return item
+
+  parser = HTMLParser(jd_data_text)
+  for i in parser.css(created_on):
+    text_data = i.text(strip=True)
+    if "/" in text_data and len(text_data) == 10:
+      item['created_on'] = text_data
+      break
+
   try:
-    if clean_platform == 'vietnamworks':
-      async with session.post(url = mapping_dict.get(clean_platform)[1], json = mapping_dict.get(clean_platform)[0]) as Response:
-        if Response.status == 200:
-          data = await Response.json()
-          return {clean_platform: data.get('data', '')}
-    else:
-      async with session.get(url = mapping_dict.get(clean_platform)[1], params = mapping_dict.get(clean_platform)[0]) as Response:
-        if Response.status == 200:
-          data = await Response.json()
-          return {clean_platform: data.get('data', '')}
+      nodes = parser.css(lat)
+      if len(nodes) >= 2:
+          lat_extracted = nodes[0].attributes.get('value', 0)
+          lon_extracted = nodes[1].attributes.get('value', 0)
+          if not lat_extracted or lon_extracted:
+            item['location_name'] = 'None'
+          else:
+            lat_val = float(lat_extracted)
+            lon_val = float(lon_extracted)
+            item['location_name'] = rg.search((lat_val, lon_val))[0]['admin1']
   except Exception as e:
-    logging.error(f'[fetch_job_headers] Can not get job headers for position {keyword}, Error: {e}, Status Code: {Response.status_code}')
-  return None
+      logging.error(f"[process_none_student_job] Geocoding failed for {link}: {e}")
+
+  return item
+
+async def process_none_student_job_mult(session, data: Dict[str, List])-> Dict[str, List]:
+  """This function is use to handle batch process of the function process_none_student_job
+  Args:
+    session: aiohttp session
+    data (dict of list): dict of list that contain info of jobs
+
+  Returns:
+    final_result (dict of list): dict of list that contain info of jobs
+
+  """
+  final_result = {}
+  for key, value in data.items():
+    task = [process_none_student_job(session = session, item = i) for i in value]
+    extracted_data = await asyncio.gather(*task)
+    if key not in final_result.keys():
+      final_result[key] = extracted_data
+    else:
+      final_result[key].append(extracted_data)
+  return final_result
 
 # The following section is specifically built for scraping ITViec as they don't expose their API (Using Playwright Stealth)
 # [FUNCTION] Eliminate loading unnecessary resources (image, stylesheet, font, etc.)
@@ -285,19 +579,17 @@ async def run_itviec_scraper(keyword: str):
     logging.debug(f"\n[run_itviec_scraper] A total of : {len(all_jobs)} job(s) have been processed.")
     return all_jobs
 
-
-# [FUNTION] function to process a list of dicts that have key as job_id and value as job_title
 def process_all_at_once(list_of_dicts):
     formatted_input = json.dumps(list_of_dicts, ensure_ascii=False, indent=2)
     max_retries = 2
 
-    models = ['arcee-ai/trinity-mini:free', 
-          'openai/gpt-oss-20b:free', 
+    models = ['arcee-ai/trinity-mini:free',
+          'openai/gpt-oss-20b:free',
           'google/gemma-3-27b-it:free',
-          'openai/gpt-oss-120b:free', 
-          'meta-llama/llama-3.3-70b-instruct:free', 
+          'openai/gpt-oss-120b:free',
+          'meta-llama/llama-3.3-70b-instruct:free',
           'arcee-ai/trinity-large-preview:free']
-    
+
     # Initialize Groq LLM to relabel job title
     llm = ChatGroq(
         model_name="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -332,7 +624,7 @@ def process_all_at_once(list_of_dicts):
 
     # Define the expected JSON structure
     parser = JsonOutputParser(pydantic_object=JobCategorizationList)
-    
+
     # Create Prompt to prevent error in categorizing titles
     prompt = ChatPromptTemplate.from_messages([
         ("system", """Bạn là chuyên gia phân loại job dữ liệu.
@@ -348,7 +640,7 @@ def process_all_at_once(list_of_dicts):
     QUY TẮC:
     1. "Data Scientist": AI/ML Engineer, Computer Vision, NLP, LLM. (Trừ Manager/Head), Thị giác máy tính.
     2. "Data Engineer": Data/Database Engineer, Architect, SQL Dev, DBA hệ thống.
-    3. "Data Analyst": BI, Data Analyst. 
+    3. "Data Analyst": BI, Data Analyst.
     LƯU Ý RIÊNG CHO BA: 'Business Analyst' CHỈ được chọn là "Data Analyst" nếu tiêu đề có chứa ÍT NHẤT MỘT công cụ kỹ thuật: SQL, Tableau, PowerBI, Python, hoặc R. Nếu tiêu đề chỉ có chữ "Phân tích" hoặc "Analytics" chung chung mà không có công cụ, hãy xếp vào "None".
     4. "Other Data Job": Manager/Head/Director Data, Data Governance, Quality, Reviewer, Coordinator.
     5. "None": BA (Business ) đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' thì đều là None
@@ -389,14 +681,37 @@ def process_all_at_once(list_of_dicts):
           logging.error(f'[process_all_at_once] Unable to retrieve result from AI, error: {e}')
           return [{'job_id': i['job_id'], 'job_label': 'None'} for i in list_of_dicts]
 
-# [FUNCTION] Chunking request sending to AI model with delay of 30 second prevent overloading the model
-def chunking(data, min_size = 30):
-  batch = []
-  total = len(data)
-  i = 0
+def sending_data_ai(total_ai_input: List[Dict]) -> Dict:
+  """Sending data in batches to AI for relabeling (Base delay each batch is 30s)
+  Args:
+    total_ai_input (list of dicts): list of dicts with key as job id and value as job title
 
-  while i < total:
-    batch.append(data[i: i + min_size])
-    i += min_size
+  Returns:
+    labeled_data (dict): a dict with key as job id and data as clean label from AI model
+  """
+  def chunking(data: List[Dict], max_size: int = 30) -> List[List[Dict[str, str]]]:
+    """Seperate data into chunks
+    Args:
+      data (list of dicts): list of dicts with key as job id and value as job title
+      max_size (int): maximum size for each batch
 
-  return batch
+    Returns:
+      batch (list of lists): list contain many smaller lists that has maximum size as 30 records each
+    """
+    batch = []
+    total = len(data)
+    i = 0
+
+    while i < total:
+      batch.append(data[i: i + max_size])
+      i += max_size
+
+    return batch
+
+  chunked_request = chunking(total_ai_input)
+  labeled_data = []
+  for i in chunked_request:
+    labeled_data.extend(process_all_at_once(i))
+    time.sleep(30)
+  labeled_data_dict = {i.get('job_id'): i.get('job_label') for i in labeled_data}
+  return labeled_data
