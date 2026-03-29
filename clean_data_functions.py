@@ -336,7 +336,7 @@ def prep_data_dim(data: pd.DataFrame, collist: List) -> List[pd.DataFrame]:
       results.append(pd.DataFrame(unique_vals, columns = [i]))
   return results
 
-def universal_date_cleaner(date_val: Any)-> datetime:
+def universal_date_cleaner(date_val: Any, job_link: str)-> datetime:
   """Convert date from multipe format
   Args:
     date_val (any): date data in various format from string to unix time (float)
@@ -346,8 +346,15 @@ def universal_date_cleaner(date_val: Any)-> datetime:
   """
 
   vn_tz = pytz.timezone('Asia/Ho_Chi_Minh')
-  settings = {'RELATIVE_BASE': datetime.now(vn_tz)}
+ 
   none_date = datetime(1990,10,10)
+  dmy_sites = {'123job.vn', 'studentjob.vn', 'itviec.com', 'topdev.vn'}
+
+  # Check if any of the DMY sites are in the link
+  if any(site in str(job_link).lower() for site in dmy_sites):
+      date_order = 'DMY'
+  else:
+      date_order = 'YMD'
 
   if pd.isna(date_val) or date_val == 'None':
       return none_date
@@ -355,6 +362,10 @@ def universal_date_cleaner(date_val: Any)-> datetime:
   if isinstance(date_val, (int, float)):
       unit = 'ms' if len(str(int(date_val))) == 13 else 's'
       return pd.to_datetime(date_val, unit=unit, utc=True)
+
+  settings = {'RELATIVE_BASE': datetime.now(vn_tz),
+              'DATE_ORDER': date_order
+              }
 
   dt = dateparser.parse(str(date_val), settings= settings)
   if not dt:
