@@ -15,3 +15,5 @@ databricks-sqlalchemy
 databricks-sql-connector
 dateparser
 selectolax
+pytz
+

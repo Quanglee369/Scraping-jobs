@@ -32,7 +32,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           OPEN_ROUTER_API_KEY : ${{ secrets.OPEN_ROUTER_API_KEY }}
           DATABRICKS_DB_URL: ${{ secrets.DATABRICKS_DB_URL }}
-        run: python script.py 
+        run: python retrieve_data.py 
 
       - name: Save Scraped Data & Logs
         if: always()
@@ -41,6 +41,7 @@ jobs:
           name: scraper-intermediate-data
           path: |
             df_master.csv
+            df_skills.csv
             scraper_debug.log
           retention-days: 1
 
@@ -59,7 +60,7 @@ jobs:
       - name: Install DB & ML Libraries
         # We install only what upload_data.py needs for speed
         run: |
-          pip install pandas numpy scikit-learn sqlalchemy databricks-sql-connector databricks-sqlalchemy
+          pip install pandas numpy scikit-learn sqlalchemy databricks-sql-connector databricks-sqlalchemy dateparser pytz
 
       - name: Download Scraped Data & Logs
         uses: actions/download-artifact@v4
