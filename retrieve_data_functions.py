@@ -643,7 +643,7 @@ def process_all_at_once(list_of_dicts):
     3. "Data Analyst": BI, Data Analyst.
     LƯU Ý RIÊNG CHO BA: 'Business Analyst' CHỈ được chọn là "Data Analyst" nếu tiêu đề có chứa ÍT NHẤT MỘT công cụ kỹ thuật: SQL, Tableau, PowerBI, Python, hoặc R. Nếu tiêu đề chỉ có chữ "Phân tích" hoặc "Analytics" chung chung mà không có công cụ, hãy xếp vào "None".
     4. "Other Data Job": Manager/Head/Director Data, Data Governance, Quality, Reviewer, Coordinator.
-    5. "None": BA (Business ) đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' thì đều là None
+    5. "None": BA (Business Analyst) đơn thuần hoặc job không liên quan dữ liệu. Các vị trí thuần developer như full stack, .NET, Java developers nếu không có chữ 'data' hoặc 'dữ liệu' hoặc 'AI' thì đều là None
 
     VÍ DỤ OUTPUT MẪU (TUÂN THỦ TUYỆT ĐỐI):
     {{
