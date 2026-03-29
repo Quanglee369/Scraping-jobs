@@ -10,6 +10,9 @@ from sqlalchemy import text, create_engine
 from sklearn.metrics.pairwise import cosine_similarity
 from clean_data_functions import prep_data_dim, fast_remove_accents, location_norm, databricks_hybrid_upsert, sync_fact_job_postings, sync_fact_skill_fast, universal_date_cleaner
 
+# ==========================================
+# SECTION 1: SETUP & DATA LOADING
+# ==========================================
 # Configure logging
 logging.basicConfig(
     level = logging.WARNING,
@@ -32,19 +35,21 @@ if master_path and skill_path:
 
 elif not skill_path and master_path:
     df_master = pd.read_csv('df_master.csv')
-    df_skills = pd.DataFrame()
+    df_skills = pd.DataFrame(columns=['job_id', 'skill_raw'])
     logging.error('[check_skill_data] df_skills.csv does not exist, create dummy dataframe')
-       
+        
 else:
-    df_master = pd.DataFrame()
-    df_skills = pd.DataFrame()
+    df_master = pd.DataFrame(columns=['job_id', 'job_title', 'date_view', 'emp_raw', 'location_name', 'label_name', 'job_link'])
+    df_skills = pd.DataFrame(columns=['job_id', 'skill_raw'])
     print('[check_master_data] df_master.csv and df_skills.csv does not exist, create dummy dataframe for both')
 
 
+# ==========================================
+# SECTION 2: DEDUPLICATION (Cosine Similarity)
+# ==========================================
 # Combination of jobtitle and company name (emp_name)
 compare_text = (df_master['job_title'].str.lower().str.replace(' ', '') + " " +
 df_master['emp_raw'].str.lower().str.replace(' ', ''))
-
 
 # Check for cosine similarity to filter out if one company post the same job in different websites
 vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(3,3))
@@ -65,7 +70,12 @@ df_master.drop(index = list(drop_index), axis = 0, inplace= True)
 
 job_id_master = list(df_master['job_id'])
 df_skills = df_skills[df_skills['job_id'].isin(job_id_master)]
+df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
 
+
+# ==========================================
+# SECTION 3: DATA NORMALIZATION
+# ==========================================
 # Convert date into ISO8601 format
 df_master['date_view'] = (
     pd.to_datetime(df_master['date_view'].apply(universal_date_cleaner), utc=True)
@@ -83,16 +93,13 @@ df_master['location_name'] = (df_master['location_name'].apply(lambda x: locatio
 # Create additional column to check if last_seen not equal today then the job is expired -> set is_expire to True
 df_master['last_seen'] = datetime.today().date()
 df_master['is_expired'] = False
+df_master['job_link'] = df_master['job_link'].apply(lambda x: str(x).replace('https://careerviet.vn/en', 'https://careerviet.vn/vi'))
 
 
+# ==========================================
+# SECTION 4: DIMENSIONAL PREP & DB CONNECTION
+# ==========================================
 # Explode and seperate skills data for storage efficiency
-df_skills = df_master[['job_id', 'skills']].explode('skills').dropna(subset=['skills']).reset_index(drop=True)
-df_skills['jobskill_id'] = df_skills['skills'].astype(str) + df_skills['job_id'].astype(str)
-df_skills.rename(columns = {'skills': 'skill_raw'}, inplace=True)
-df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
-
-df_master = df_master.drop(columns='skills')
-
 # Initiate sessions and connect to supabase database
 url = os.getenv('DATABRICKS_DB_URL')
 engine = create_engine(url, connect_args={"base_parameters": {"query_timeout": 30}})
@@ -110,7 +117,6 @@ list_of_dim_cols_skills = ['skill_raw']
 result_skills = prep_data_dim(data=df_skills, collist=list_of_dim_cols_skills)
 skills = result_skills[0]
 
-
 # Test the connection
 try:
     engine.connect()
@@ -119,6 +125,9 @@ except Exception as e:
     print(f'[testing_database_connection] Error when connecting to the database {e}')
 
 
+# ==========================================
+# SECTION 5: DIMENSION UPSERTS
+# ==========================================
 # Create list of tasks to update dimensional data into the tables
 databricks_hybrid_upsert(df = location_name, target_table='location_dim', unique_key='location_name', columns_to_update=['location_name'], engine= engine)
 databricks_hybrid_upsert(df = date_view, target_table='date_dim', unique_key='actual_date', columns_to_update=['actual_date'], engine= engine)
@@ -128,6 +137,9 @@ databricks_hybrid_upsert(df = emp_name, target_table='emp_dim', unique_key='emp_
 databricks_hybrid_upsert(df = skills, target_table='skill_dim', unique_key='skill_raw', columns_to_update=['skill_raw'], engine= engine)
 
 
+# ==========================================
+# SECTION 6: FACT TABLE MAPPING & SYNC
+# ==========================================
 # Prepare data for mapping and get ids from the newly updated dimensional tables
 date_dim_dict = pd.read_sql_query("Select * from date_dim", engine)
 emp_dim_dict = pd.read_sql_query("Select * from emp_dim", engine)
@@ -140,9 +152,9 @@ update_fact_job_postings = (df_master
     .merge(date_dim_dict, how='left', left_on='date_view', right_on='actual_date')
     .drop(columns=['actual_date'])
     .rename(columns= {'date_id': 'created_on_id'})
-    .merge(emp_dim_dict, how='left', left_on='emp_raw', right_on='emp_raw')
+    .merge(emp_dim_dict, how='left', on='emp_raw')
     .merge(location_dim_dict, how='left', on='location_name')
-    .merge(label_dim_dict, how='left', left_on='label_name', right_on='label_name')
+    .merge(label_dim_dict, how='left', on = 'label_name')
     .merge(date_dim_dict, left_on='last_seen', right_on='actual_date')
     .rename(columns={'date_id': 'last_seen_id'})
     # Drop all the 'raw' columns used for joining in one go

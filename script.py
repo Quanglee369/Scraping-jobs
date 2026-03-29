@@ -1,7 +1,6 @@
 import pandas as pd
 import asyncio
 import os
-import time
 import aiohttp 
 import logging
 import hashlib
@@ -239,6 +238,8 @@ async def main():
     # Map back to Master
     df_master[['job_id', 'label']] = df_labeled_job[['job_id', 'label']]
     df_skill_total.columns = ['job_id', 'skill_raw']
+    # Select only the needed columns first, then rename them
+    df_master = df_master[['job_id', 'job_title', 'created_on', 'emp_name', 'location_name', 'label', 'job_link']]
     df_master.columns = ['job_id', 'job_title', 'date_view', 'emp_raw', 'location_name', 'label_name', 'job_link']
     # ==========================================
     # SECTION 7: EXPORT
