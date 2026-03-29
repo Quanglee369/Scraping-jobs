@@ -298,10 +298,13 @@ def location_norm(loc: Any, pattern) -> str:
   """
   if not loc:
     return 'Other'
+  
   if isinstance(loc, list):
     loc = fast_remove_accents(', '.join(loc).strip())
   elif isinstance(loc, str):
     loc = fast_remove_accents(loc)
+  else:
+     return 'Other'
     
   result = pattern.findall(loc.strip())
   unique_results = list(dict.fromkeys(result))
