@@ -71,7 +71,7 @@ df_master.drop(index = list(drop_index), axis = 0, inplace= True)
 job_id_master = list(df_master['job_id'])
 df_skills = df_skills[df_skills['job_id'].isin(job_id_master)]
 df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
-df_skills.dropna(subset = ['job_link'], inplace = True)
+
 
 # ==========================================
 # SECTION 3: DATA NORMALIZATION
@@ -94,7 +94,8 @@ df_master['location_name'] = (df_master['location_name'].apply(lambda x: locatio
 df_master['last_seen'] = datetime.today().date()
 df_master['is_expired'] = False
 df_master['job_link'] = df_master['job_link'].apply(lambda x: str(x).replace('https://careerviet.vn/en', 'https://careerviet.vn/vi'))
-df_master.dropna(subet = ['job_link'], inplace=True)
+df_master.dropna(subset = ['job_link'], inplace=True)
+df_skills = df_skills[df_skills['job_id'].isin(list(df_master['job_id']))]
 
 # ==========================================
 # SECTION 4: DIMENSIONAL PREP & DB CONNECTION
