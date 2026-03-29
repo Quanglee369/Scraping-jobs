@@ -20,7 +20,7 @@ import aiohttp
 import os
 
 
-async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, sem=asyncio.Semaphore(10))-> Dict[str, str]:
+async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, sem: asyncio.Semaphore)-> Dict[str, str]:
     """Get job description info from links
     Args:
       session: aiohttp session
@@ -75,7 +75,7 @@ async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, se
               return {job_id: ''}
 
         except Exception as e:
-            logging.error(f'[fetch_jd_careerviet] Error when fetching link {job_link}, detail: {e}')
+            logging.error(f'[fetch_jd] Error when fetching link {job_link}, detail: {e}')
             return {}
 
     # Filter the JD from html response
@@ -99,8 +99,9 @@ async def fetch_jd_mult(session: aiohttp.ClientSession, data: Dict[str, List]) -
     final_data (dict): a dict with key as platform name and value as list of dict contain job description and its job id
   """
   final_data = {}
+  sem= asyncio.Semaphore(10)
   for key, value in data.items():
-    task = [fetch_jd(session = session, item = single_val, platform = key) for single_val in value]
+    task = [fetch_jd(session = session, item = single_val, platform = key, sem= sem) for single_val in value]
     extracted_jd = await asyncio.gather(*task)
     if key not in final_data.keys():
       final_data[key] =  extracted_jd
@@ -180,7 +181,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
 
     return data
 
-async def html_scraping(keyword: str, platform: str, page_num: int, session: aiohttp.ClientSession, sem =  asyncio.Semaphore(10)) -> List[Dict[str, Any]]:
+async def html_scraping(keyword: str, platform: str, page_num: int, session: aiohttp.ClientSession, sem:  asyncio.Semaphore) -> List[Dict[str, Any]]:
     """Scrap job informations from html data
     Args:
       keyword (str): name of the search keyword such as Data Analyst, Data Engineer, etc.
@@ -301,7 +302,7 @@ async def html_scraping(keyword: str, platform: str, page_num: int, session: aio
 
     return final_data
 
-async def process_none_student_job( item: Dict, session: aiohttp.ClientSession,sem = asyncio.Semaphore (10))-> Dict:
+async def process_none_student_job( item: Dict, session: aiohttp.ClientSession, sem: asyncio.Semaphore)-> Dict:
   """Get location, created date specifically for student job site
   Args:
     item (dict): a dict containing job info for a job
@@ -378,8 +379,9 @@ async def process_none_student_job_mult(session, data: Dict[str, List])-> Dict[s
 
   """
   final_result = {}
+  sem = asyncio.Semaphore(10)
   for key, value in data.items():
-    task = [process_none_student_job(session = session, item = i) for i in value]
+    task = [process_none_student_job(session = session, item = i, sem = sem) for i in value]
     extracted_data = await asyncio.gather(*task)
     if key not in final_result.keys():
       final_result[key] = extracted_data

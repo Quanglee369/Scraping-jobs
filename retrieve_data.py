@@ -78,7 +78,7 @@ async def main():
     for i in api_data_topdev_noblank.get('topdev'):
         i['job_id'] = hashlib.md5(i.get('detail_url').encode('utf-8')).hexdigest()
 
-    print('[api_scraper] Successfully extract data from careerviet and vietnamworks')
+    print('[api_scraper] Successfully extract data')
 
 
     # ==========================================
@@ -164,7 +164,8 @@ async def main():
     job_site = list(i for i in html_scraping_dict.keys())
     
     async with aiohttp.ClientSession() as session:
-        task_html =  [html_scraping(session=session, keyword= keyword, platform= site, page_num=i) for keyword in keyword_list for site in job_site for i in range(1, 21)]
+        sem =  asyncio.Semaphore(10)
+        task_html =  [html_scraping(session=session, keyword= keyword, platform= site, page_num=i, sem= sem) for keyword in keyword_list for site in job_site for i in range(1, 21)]
         html_scrap_data = await asyncio.gather(*task_html)
 
     final_data_html = {}
