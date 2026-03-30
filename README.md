@@ -60,7 +60,7 @@ The Looker Studio dashboard provides real-time answers to critical career questi
 * What are the current job volume trends compared to previous months?
 * Which companies are the most active recruiters in the data space?
 
-![Dashboard_Image](dashboard_image.png)
+![Dashboard_Image](image/dashboard_image.png)
 
 ### Workflow Performance
 A dedicated monitoring page tracks the health of the ETL process:
@@ -68,7 +68,7 @@ A dedicated monitoring page tracks the health of the ETL process:
 * Identification of "non-relevant" jobs that bypassed filters for future logic refinement.
 * Tracking records with missing `skill_cleaned` data for manual verification.
 
-![Dashboard_Image](dashboard_image1.png)
+![Dashboard_Image](image/dashboard_image1.png)
 
 ---
 
