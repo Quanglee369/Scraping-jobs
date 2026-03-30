@@ -48,7 +48,7 @@ Data is pushed to Databrick using a Star Schema design to optimize for Online An
 ## Database Schema
 The database is structured to support complex analytical queries regarding market trends and skill requirements.
 
-![Schema Description](database_schema.png)
+![Schema Description](image/database_schema.png)
 
 ---
 
