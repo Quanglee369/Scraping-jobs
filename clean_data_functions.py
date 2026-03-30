@@ -340,7 +340,7 @@ def universal_date_cleaner(date_val: Any, job_link: str)-> datetime:
   """Convert date from multipe format
   Args:
     date_val (any): date data in various format from string to unix time (float)
-
+    job_link (str): link of the postings
   Returns:
     return converted datetime data
   """

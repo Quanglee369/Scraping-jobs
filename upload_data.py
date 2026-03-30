@@ -78,7 +78,7 @@ df_skills['skill_raw'] = df_skills['skill_raw'].str.strip()
 # ==========================================
 # Convert date into ISO8601 format
 df_master['date_view'] = (
-    pd.to_datetime(df_master['date_view'].apply(universal_date_cleaner), utc=True)
+    pd.to_datetime(df_master.apply(lambda row: universal_date_cleaner(date_val = row['date_view'], job_link = row['job_link']), axis=1), utc=True)
     .dt.tz_convert('Asia/Ho_Chi_Minh')
     .dt.tz_localize(None)
 )
