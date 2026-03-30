@@ -1,5 +1,10 @@
 # Data-Driven Job Board: End-to-End ETL Pipeline
 
+## What's new as of 30.03.2026
+- Data from 5 extra sites added
+- Refactor code for readability and ease of update
+- Reduce request each time with the use of proxy for specific websites
+
 ## Overview
 This project is an automated end-to-end data pipeline designed to consolidate data-related job postings from multiple platforms into a single, filtered, and AI-enriched dashboard. By centralizing data from various sources, this tool eliminates the need to manually browse multiple job boards and uses AI to filter out non-relevant postings with high precision.
 
