@@ -147,6 +147,8 @@ emp_dim_dict = pd.read_sql_query("Select * from emp_dim", engine)
 location_dim_dict = pd.read_sql_query("Select * from location_dim", engine)
 label_dim_dict = pd.read_sql_query("Select * from label_dim", engine)
 skill_dim_dict = pd.read_sql_query("Select * from skill_dim", engine)
+fact_job_dict = pd.read_sql_query("Select * from fact_job_postings", engine)
+unique_exist_id = set(list(fact_job_dict['job_id']))
 
 # Map the data for both fact_job_posting and fact_skill table
 update_fact_job_postings = (df_master
@@ -170,6 +172,8 @@ update_fact_skill = (df_skills
                 .drop(columns=['skill_cleaned', 'skill_raw'])
                 .reset_index(drop=True)
 )
+
+update_fact_skill = update_fact_skill[~update_fact_skill['job_id'].isin(unique_exist_id)]
 
 # Check column types - look for 'float64' where it should be 'int'
 logging.warning(f"DATAFRAME TYPES:\n{update_fact_job_postings.dtypes}")

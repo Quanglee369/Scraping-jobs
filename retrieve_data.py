@@ -164,7 +164,7 @@ async def main():
     job_site = list(i for i in html_scraping_dict.keys())
     
     async with aiohttp.ClientSession() as session:
-        sem =  asyncio.Semaphore(10)
+        sem =  asyncio.Semaphore(5)
         task_html =  [html_scraping(session=session, keyword= keyword, platform= site, page_num=i, sem= sem) for keyword in keyword_list for site in job_site for i in range(1, 21)]
         html_scrap_data = await asyncio.gather(*task_html)
 
