@@ -141,7 +141,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
     retry = 1
     data = {}
 
-    if platform == 'monster':
+    if clean_platform == 'monster':
       proxy_url = os.environ.get('PROXY_URL')
     else:
       proxy_url = None
