@@ -1,8 +1,9 @@
 import os
 import logging
 import re
+import pytz
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 from master_config import province_map
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -150,6 +151,10 @@ skill_dim_dict = pd.read_sql_query("Select * from skill_dim", engine)
 fact_job_dict = pd.read_sql_query("Select * from fact_job_postings", engine)
 unique_exist_id = set(list(fact_job_dict['job_id']))
 
+#Remove date in the past more than 60 days
+present = datetime.now(pytz.utc).date()
+df_master = df_master[df_master['date_view'] > (present - timedelta(days=60))]
+
 # Map the data for both fact_job_posting and fact_skill table
 update_fact_job_postings = (df_master
     .merge(date_dim_dict, how='left', left_on='date_view', right_on='actual_date')
@@ -166,6 +171,7 @@ update_fact_job_postings = (df_master
         'emp_cleaned', 'location_name', 'label_name'
     ])
 )
+
 
 update_fact_skill = (df_skills
                 .merge(skill_dim_dict, on = 'skill_raw', how='left')
