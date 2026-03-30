@@ -347,7 +347,7 @@ def universal_date_cleaner(date_val: Any, job_link: str)-> datetime:
 
   vn_tz = pytz.timezone('Asia/Ho_Chi_Minh')
  
-  none_date = datetime(1990,10,10)
+  none_date = datetime(1990, 10, 10, tzinfo=pytz.UTC)
   dmy_sites = {'studentjob.vn', 'topdev.vn'}
 
   # Check if any of the DMY sites are in the link
