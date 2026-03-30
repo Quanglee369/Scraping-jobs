@@ -141,6 +141,11 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
     retry = 1
     data = {}
 
+    if platform == 'monster':
+      proxy_url = os.environ.get('PROXY_URL')
+    else:
+      proxy_url = None
+      
     while retry < 4:
       try:
           # For vietnamworks api, using POST not GET
@@ -159,7 +164,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                     break
 
           else:
-              async with session.get(url=url, params=params, headers=header) as response:
+              async with session.get(url=url, params=params, headers=header,  proxy = proxy_url) as response:
                   if response.status == 200:
                       data = await response.json()
                       break
