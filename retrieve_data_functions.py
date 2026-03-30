@@ -145,7 +145,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
       proxy_url = os.environ.get('PROXY_URL')
     else:
       proxy_url = None
-      
+
     while retry < 4:
       try:
           # For vietnamworks api, using POST not GET
@@ -174,7 +174,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                     retry += 1
                     continue
                   else:
-                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}')
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}, status: {response.status}')
                     break
 
       except Exception as e:
