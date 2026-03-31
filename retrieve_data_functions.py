@@ -194,7 +194,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
     if data and isinstance(data, dict):
       return {clean_platform: data.get('data', [])}
 
-    return data
+    return {}
 
 async def html_scraping(keyword: str, platform: str, page_num: int, session: aiohttp.ClientSession, sem:  asyncio.Semaphore) -> List[Dict[str, Any]]:
     """Scrap job informations from html data
@@ -362,7 +362,7 @@ async def process_none_student_job( item: Dict, session: aiohttp.ClientSession, 
         return item
 
   if not jd_data_text:
-        return item
+    return item
 
   parser = HTMLParser(jd_data_text)
   for i in parser.css(created_on):
