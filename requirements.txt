@@ -16,4 +16,5 @@ databricks-sql-connector
 dateparser
 selectolax
 pytz
+reverse_geocoder
 
