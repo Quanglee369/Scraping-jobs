@@ -104,11 +104,14 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
 
   # Intialize dict for labeling to reduce AI payload
   label_mapping = {
-    "dataanalyst": "Data Analyst",
+    "dataanalys": "Data Analyst",
     "dataengineer": "Data Engineer",
+    "databaseadmin": "Data Engineer",
     "datascientist": "Data Scientist",
     "aiengineer": "Data Scientist",
-    "mlengineer": "Data Scientist"
+    "mlengineer": "Data Scientist",
+    "quảnlýdữliệu": "Data Engineer",
+    "dataarchitect": "Data Engineer"
   }
 
   # Check if platform is valid and exist in the predefined list
@@ -393,7 +396,7 @@ def merge_df_master(data: List[Any]) -> pd.DataFrame:
         for key, value in i.items():
           required_cols_dict = api_data_cols.get(key)
           if not required_cols_dict:
-            print(f'keyword {key} not in api_data_cols keys: {list(api_data_cols.keys())} proceed with other option')
+            print(f'[merge_df_master] keyword {key} not in api_data_cols keys: {list(api_data_cols.keys())} proceed with other option')
             required_cols_dict = api_data_cols.get('other')
 
           temp_df = pd.DataFrame(value).loc[:, required_cols_dict]
