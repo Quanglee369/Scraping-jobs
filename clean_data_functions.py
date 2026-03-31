@@ -25,7 +25,7 @@ def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
   clean_platform = platform.strip().replace(' ', '').lower()
 
   if clean_platform not in keys_for_platforms.keys():
-    print(f'Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
+    print(f'[filter_relevant] Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
     clean_platform = 'other'
 
   # Check if data is valid
