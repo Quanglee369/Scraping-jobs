@@ -46,7 +46,8 @@ async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, se
     job_link_name = config.get('job_link_header')
     job_desc = config.get('job_desc')
     header = config.get('headers')
-    retry = 1
+    retry = 0
+    response = None
 
     while retry < 4:
       async with sem:
@@ -62,7 +63,7 @@ async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, se
               break
 
             elif response.status == 429:
-              logging.error(f"Error, too many request for platform {platform} link: {job_link} retry for {retry} time")
+              logging.error(f"[fetch_jd] Error, too many request for platform {platform} link: {job_link} retry for {retry + 1} time")
               await asyncio.sleep(2**retry)
               retry += 1
               continue
@@ -78,14 +79,14 @@ async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, se
             logging.error(f'[fetch_jd] Error when fetching link {job_link}, detail: {e}')
             return {}
 
+    if response is None or response.status != 200:
+        logging.error(f'[fetch_jd] Error when fetching link {job_link}')
+        return {job_id: ''}
+        
     # Filter the JD from html response
     jd_text = await response.text()
     jdhtml = HTMLParser(jd_text)
-
-    clean_text = ''
-    # Iterate through the selectors to extract text
-    for i in jdhtml.css(job_desc):
-          clean_text += i.text(strip=True) + " "
+    clean_text = ''.join([i.text(strip=True) for i in  jdhtml.css(job_desc)])
 
     return {job_id: clean_text.strip()}
 
@@ -159,6 +160,9 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                     await asyncio.sleep(2 ** retry)
                     retry += 1
                     continue
+                  elif response.status != 200:
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}')
+                    return {}
                   else:
                     logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}')
                     break
@@ -168,11 +172,17 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                   if response.status == 200:
                       data = await response.json()
                       break
+                      
                   elif response.status == 429:
                     logging.warning(f'[fetch_job_headers] Too many request, proceed to retry {retry} time(s)')
                     await asyncio.sleep(2 ** retry)
                     retry += 1
                     continue
+                      
+                  elif response.status != 200:
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}, status: {response.status}')
+                    return {}
+                      
                   else:
                     logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}, status: {response.status}')
                     break
@@ -238,6 +248,10 @@ async def html_scraping(keyword: str, platform: str, page_num: int, session: aio
                 retry += 1
                 await asyncio.sleep(2**retry)
                 continue
+
+              elif response.status != 200:
+                logging.error(f"[html_scraping] Failed to fetch {platform}: Status {response.status}, Keyword: {keyword}, Page_num: {page_num}")
+                return final_data
 
               else:
                 logging.error(f"[html_scraping] Failed to fetch {platform}: Status {response.status}, Keyword: {keyword}, Page_num: {page_num}")
