@@ -168,6 +168,8 @@ async def main():
         task_html =  [html_scraping(session=session, keyword= keyword, platform= site, page_num=i, sem= sem) for keyword in keyword_list for site in job_site for i in range(1, 21)]
         html_scrap_data = await asyncio.gather(*task_html)
 
+    print('[html_scraper] successfully extract data from html')
+
     final_data_html = {}
     for entry in html_scrap_data:
         for platform, job_list in entry.items():
@@ -235,6 +237,7 @@ async def main():
     # Send to AI and Fill Labels
     labeled_job = sending_data_ai(total_input_ai) 
     df_labeled_job = pd.DataFrame(fill_label(data = ref_dict, label_data=labeled_job))
+    print('[AI labeling] AI labeling complete')
     
     # Map back to Master
     df_master[['job_id', 'label']] = df_labeled_job[['job_id', 'label']]
