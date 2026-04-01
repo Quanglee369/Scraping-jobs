@@ -107,10 +107,14 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
     "dataanalys": "Data Analyst",
     "dataengineer": "Data Engineer",
     "databaseadmin": "Data Engineer",
+    "databaseengineer": "Data Engineer",
     "datascientist": "Data Scientist",
     "aiengineer": "Data Scientist",
     "mlengineer": "Data Scientist",
+    "aidevelop": "Data Scientist",
+    "aiarchitect": "Data Scientist",
     "quảnlýdữliệu": "Data Engineer",
+    "quảntrịdữliệu": "Data Engineer",
     "dataarchitect": "Data Engineer"
   }
 
