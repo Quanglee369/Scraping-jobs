@@ -217,7 +217,7 @@ nega_keyword = [
     'entry', 'kiểm toán', 'auditor', 'tester', 'qc', 'security', 'bảo mật', 
     'ib', 'sale', 'sales', 'full stack', 'backend', 'frontend', 'java engineer', 
     'spring boot', 'back-end', 'front-end', 'full-stack', 'web', 'software', 
-    'android', 'ios', 'mobile', 'qa', 'business'
+    'android', 'ios', 'mobile', 'qa', 'business', 'devops'
 ]
 
 api_data_cols = {
