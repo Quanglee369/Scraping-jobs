@@ -701,7 +701,7 @@ def process_all_at_once(list_of_dicts):
           continue
         else:
           logging.error(f'[process_all_at_once] Unable to retrieve result from AI, error: {e}')
-          return [{'job_id': i['job_id'], 'job_label': 'None'} for i in list_of_dicts]
+          return [{'job_id': i['job_id'], 'job_label': 'No Ouput'} for i in list_of_dicts]
 
 def sending_data_ai(total_ai_input: List[Dict]) -> Dict:
   """Sending data in batches to AI for relabeling (Base delay each batch is 30s)
