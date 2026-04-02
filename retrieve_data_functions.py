@@ -736,4 +736,4 @@ def sending_data_ai(total_ai_input: List[Dict]) -> Dict:
     labeled_data.extend(process_all_at_once(i))
     time.sleep(30)
   labeled_data_dict = {i.get('job_id'): i.get('job_label') for i in labeled_data}
-  return labeled_data
+  return labeled_data_dict
