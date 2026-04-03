@@ -84,12 +84,15 @@ async def fetch_jd(session: aiohttp.ClientSession, item: Dict, platform: str, se
         logging.error(f'[fetch_jd] Error when fetching link {job_link}')
         return {job_id: ''}
         
-    # Filter the JD from html response
-    jd_text = await response.text()
-    jdhtml = HTMLParser(jd_text)
-    clean_text = ''.join([i.text(strip=True) for i in  jdhtml.css(job_desc)])
-
-    return {job_id: clean_text.strip()}
+    try:    
+        # Filter the JD from html response
+        jd_text = await response.text()
+        jdhtml = HTMLParser(jd_text)
+        clean_text = ''.join([i.text(strip=True) for i in  jdhtml.css(job_desc)])
+        return {job_id: clean_text.strip()}
+    except Exception as e:
+        logging.error(f'[fetch_jd] Error when parsing job description, detail: {e}')
+        return {}
 
 async def fetch_jd_mult(session: aiohttp.ClientSession, data: Dict[str, List]) -> Dict[str, List]:
   """This function is used to handle batch process of the fetch_jd function
