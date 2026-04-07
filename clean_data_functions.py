@@ -48,7 +48,8 @@ def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
     for i in item:
             raw_title = i.get(job_title)
             if not raw_title:
-              return logging.warning(f'[filter_relevent] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is not data at all')
+              logging.warning(f'[filter_relevent] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is no data at all')
+              continue
 
             # 1. Fix the "Cake" formatting (CamelCase to Spaces)
             normalized_title = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw_title)
@@ -141,7 +142,8 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
   for i in item:
     raw_id = i.get(job_id)
     if not raw_id:
-      return print('[remove_duplicate] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is not data at all')
+      logging.warning('[remove_duplicate] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is no data at all')
+      continue
     job_id_inner = str(raw_id) if raw_id is not None else None
     if not job_id_inner or job_id_inner in seen_id:
       continue
