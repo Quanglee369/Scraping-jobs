@@ -11,7 +11,7 @@ from sqlalchemy import text
 from typing import List, Union, Dict, Any
 
 
-def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
+def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict] | List:
   """Remove none-relevant jobs
   Args:
     data (list of dicts): List of dict with jobs information
@@ -25,7 +25,7 @@ def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
   clean_platform = platform.strip().replace(' ', '').lower()
 
   if clean_platform not in keys_for_platforms.keys():
-    print(f'[filter_relevant] Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
+    logging.info(f'[filter_relevant] Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
     clean_platform = 'other'
 
   # Check if data is valid
@@ -46,25 +46,25 @@ def filter_relevant(item: List[Dict[str, Any]], platform: str) -> List[Dict]:
 
   try:
     for i in item:
-            raw_title = i.get(job_title)
-            if not raw_title:
-              logging.warning(f'[filter_relevent] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is no data at all')
-              continue
+        raw_title = i.get(job_title)
+        if not raw_title:
+          logging.warning(f'[filter_relevent] Invalid or empty data for {clean_platform} with {len(item)} records')
+          break
 
-            # 1. Fix the "Cake" formatting (CamelCase to Spaces)
-            normalized_title = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw_title)
+        # 1. Fix the "Cake" formatting (CamelCase to Spaces)
+        normalized_title = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw_title)
 
-            # 2. Run your filters on the normalized title
-            is_must_have = mh_pattern.search(normalized_title)
-            is_positive = pos_pattern.search(normalized_title)
-            is_negative = neg_pattern.search(normalized_title)
+        # 2. Run your filters on the normalized title
+        is_must_have = mh_pattern.search(normalized_title)
+        is_positive = pos_pattern.search(normalized_title)
+        is_negative = neg_pattern.search(normalized_title)
 
-            if is_must_have and is_positive and not is_negative:
-                filtered_job.append(i)
+        if is_must_have and is_positive and not is_negative:
+            filtered_job.append(i)
     return filtered_job
 
   except Exception as e:
-    logging.error(f'[filter_relevant] Unable to clean data and prepare for AI input, error detail: {e}')
+    logging.error(f'[filter_relevant] Unable to process data for {clean_platform} with {len(item)} records, error detail: {e}')
     return []
 
 def filter_relevant_mult(data: List[Dict[str, Any]]) -> Dict[str, List]:
@@ -85,7 +85,7 @@ def filter_relevant_mult(data: List[Dict[str, Any]]) -> Dict[str, List]:
         filtered_data[key].extend(filter_relevant(item = value, platform = key))
   return filtered_data
 
-def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame) -> List[Dict]:
+def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame) -> List[Dict] | List:
   """Remove duplicate jobs
   Args:
     item (list of dicts): list of dict with jobs information
@@ -123,7 +123,7 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
   clean_platform = platform.strip().replace(' ', '').lower()
 
   if clean_platform not in keys_for_platforms.keys():
-    print(f'[remove_duplicate] platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
+    print(f'[remove_duplicate] Platform: {clean_platform} is not in the list: {keys_for_platforms.keys()} proceed with the option other')
     clean_platform = 'other'
 
   # Check if data is valid
@@ -138,11 +138,10 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
   pattern = re.compile('|'.join(re.escape(k) for k in label_mapping.keys()))
 
   # Loop through each job, only return the one that is not yet exist in the list
-
   for i in item:
     raw_id = i.get(job_id)
     if not raw_id:
-      logging.warning('[remove_duplicate] if the word other is used, this mean there is a platform with invalid keyword, if maybe there is no data at all')
+      logging.warning(f'[remove_duplicate] Invalid or empty data for {clean_platform} with {len(item)} records')
       continue
     job_id_inner = str(raw_id) if raw_id is not None else None
     if not job_id_inner or job_id_inner in seen_id:
@@ -153,6 +152,7 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
     # Also label job with explicit keyword to reduce AI payload
     match_label = pattern.search(i.get(job_title).lower().replace(' ', ''))
 
+    # Label unmatched jobs as ''
     if match_label:
       i['label'] = label_mapping[match_label.group(0)]
     else:
@@ -162,7 +162,7 @@ def remove_duplicate(item: List[Dict], platform: str, exist_job_id: pd.DataFrame
   input_ai = [{'job_id': i.get(job_id), 'job_title': i.get(job_title)} for i in cleaned if i.get('label') == '' and str(i.get(job_id)) not in exist_id]
   return cleaned, input_ai
 
-def remove_duplicate_multi(data: Dict[str, List], exist_job_id: pd.DataFrame) -> Dict[str, List]:
+def remove_duplicate_multi(data: Dict[str, List], exist_job_id: pd.DataFrame) -> Dict[str, List] | Dict:
   """This function is used for handle batch process of remove_duplicate function
   Args:
     data (dict): a dict contain key as platform namd and value as list of dict containing job info
@@ -184,7 +184,7 @@ def remove_duplicate_multi(data: Dict[str, List], exist_job_id: pd.DataFrame) ->
       input_ai[key].extend(filtered_data[1])
   return nondupdata, input_ai
 
-def extract_skills_from_jd(job_list: List[Dict[str, str]]) -> List[Dict[str, List]]:
+def extract_skills_from_jd(job_list: List[Dict[str, str]]) -> List[Dict[str, List]] | List:
   """Extract skills from Job Descriptions
   Args:
     job_list (list of dict): list of dict with Job Id and Job Descriptions to extract skills
@@ -244,11 +244,11 @@ def fill_label(data: List[Dict], label_data: Dict) -> List[Dict]:
   """
 
   if not data:
-    print(f'[fill_label] data invalid')
+    print(f'[fill_label] Data invalid')
     return []
 
   if not label_data:
-    print(f'[fill_label] label data invalid for proceed with blank label')
+    print(f'[fill_label] Label data invalid for proceed with blank label')
     label_data = {}
 
   temp_data = copy.deepcopy(data)
@@ -402,7 +402,7 @@ def merge_df_master(data: List[Any]) -> pd.DataFrame:
         for key, value in i.items():
           required_cols_dict = api_data_cols.get(key)
           if not required_cols_dict:
-            print(f'[merge_df_master] keyword {key} not in api_data_cols keys: {list(api_data_cols.keys())} proceed with other option')
+            print(f'[merge_df_master] Keyword {key} not in api_data_cols keys: {list(api_data_cols.keys())} proceed with other option')
             required_cols_dict = api_data_cols.get('other')
 
           temp_df = pd.DataFrame(value).loc[:, required_cols_dict]
@@ -412,7 +412,7 @@ def merge_df_master(data: List[Any]) -> pd.DataFrame:
           temp_df = pd.DataFrame(i).loc[:, standard_cols]
           df_list.append(temp_df)
     except Exception as e:
-      print(f'Unable to process data, error, {e}')
+      print(f'Unable to process data with {len(data)} records, error, {e}')
 
   df = pd.concat(df_list, axis=0, ignore_index=True)
 
@@ -454,10 +454,10 @@ def sync_fact_job_postings(df: pd.DataFrame, engine)-> None:
             method='multi',
             chunksize=1000
         )
-        print('[sync_fact_job_postings] Successfully created staging table')
+        print(f'[sync_fact_job_postings] Successfully syncing {staging_table}')
 
     except Exception as e:
-        logging.error(f"[sync_fact_job_postings] Error in creating staging table, error detail: {e}")
+        logging.error(f"[sync_fact_job_postings] Error in syncing {staging_table} with {df.shape[0]} records, error detail: {e}")
         return
 
     # 3. Native MERGE (Handling Updates & Inserts)
@@ -480,10 +480,10 @@ def sync_fact_job_postings(df: pd.DataFrame, engine)-> None:
             conn.execute(merge_sql)
             conn.execute(text(f"DROP TABLE {staging_table}"))
 
-        print(f"[sync_fact_job_postings] Successfully synced {target_table}")
+        logging.info(f"[sync_fact_job_postings] Successfully syncing {target_table} with {df.shape[0]} records")
 
     except Exception as e:
-        logging.error(f'[sync_fact_job_postings] Error in merging with the main table, error detail: {e}')
+        logging.error(f'[sync_fact_job_postings] Error syncing {target_table} with {df.shape[0]} records, error detail: {e}')
         return
 
 def sync_fact_skill_fast(df: pd.DataFrame, engine)-> None:
@@ -509,9 +509,9 @@ def sync_fact_skill_fast(df: pd.DataFrame, engine)-> None:
     # 2. Bulk upload to staging
     try:
         df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
-        print('[sync_fact_skill_fast] Success updating staging table')
+        logging.info(f'[sync_fact_skill_fast] Successfully synced {staging_table} with {df.shape[0]} records')
     except Exception as e:
-        logging.error(f"[sync_fact_skill_fast] Error when updating staging table, error detail: {e}")
+        logging.error(f"[sync_fact_skill_fast] Error when syncing {staging_table} with {df.shape[0]} records, error detail: {e}")
         return
     # 3. Fast "Not Exists" Insert
     # This query only inserts rows where the combination of skill_id AND job_id doesn't exist yet
@@ -531,9 +531,9 @@ def sync_fact_skill_fast(df: pd.DataFrame, engine)-> None:
             conn.execute(insert_sql)
             conn.execute(text(f"DROP TABLE {staging_table}"))
 
-        print(f"[sync_fact_skill_fast] Successfully synced {target_table}")
+        print(f"[sync_fact_skill_fast] Successfully synced {target_table} with {df.shape[0]} records")
     except Exception as e:
-        logging.error(f"[sync_fact_skill_fast] Error in updating main database, error detail: {e}")
+        logging.error(f"[sync_fact_skill_fast] Error in syncing {target_table} with {df.shape[0]} records, error detail: {e}")
         return
 
 def databricks_hybrid_upsert(df: pd.DataFrame, target_table: str, unique_key: str, columns_to_update: List, engine) -> None:
@@ -544,8 +544,8 @@ def databricks_hybrid_upsert(df: pd.DataFrame, target_table: str, unique_key: st
       unique_key (str): The column to match on (e.g., 'location_name')
       columns_to_update (list): List of columns to update if match found (excluding the ID)
     """
-    if df.empty or len(columns_to_update) < 0:
-        raise ValueError('dataframe is empty or list of updated column is emtpy')
+    if df.empty or not columns_to_update:
+        raise ValueError('[databricks_hybrid_upsert] Dataframe is empty or list of updated column is emtpy')
 
     staging_table = f"staging_{target_table}"
 
@@ -555,9 +555,9 @@ def databricks_hybrid_upsert(df: pd.DataFrame, target_table: str, unique_key: st
     # 1. Push to Staging
     try:
         df.to_sql(staging_table, con=engine, if_exists='replace', index=False, method='multi')
-        print(f"[databricks_hybrid_upsert] Success updating {staging_table}")
+        print(f"[databricks_hybrid_upsert] Success syncing {staging_table} with {df.shape[0]} records")
     except Exception as e:
-        logging.error(f"[databricks_hybrid_upsert] Failed to update staging table, error detail: {e}")
+        logging.error(f"[databricks_hybrid_upsert] Failed to sync {staging_table} with {df.shape[0]} records, error detail: {e}")
         return
     # 2. Build the MERGE query
     # Logic: Match on unique_key. If exists, update metadata. If not, insert.
@@ -593,8 +593,8 @@ def databricks_hybrid_upsert(df: pd.DataFrame, target_table: str, unique_key: st
             conn.execute(merge_sql)
             conn.execute(text(f"DROP TABLE {staging_table}"))
 
-        print(f"[databricks_hybrid_upsert] Successfully synced {target_table}")
+        print(f"[databricks_hybrid_upsert] Successfully syncing {target_table}")
     except Exception as e:
-        logging.error(f"[databricks_hybrid_upsert] Fail to update main databse, error detail: {e}")
+        logging.error(f"[databricks_hybrid_upsert] Fail to sync {target_table} with {df.shape[0]} records, error detail: {e}")
         return
 
