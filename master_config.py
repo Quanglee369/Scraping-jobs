@@ -166,7 +166,7 @@ keys_for_platforms = {
     'careerviet': ['job_title', 'job_id'],
     'vietnamworks': ['jobTitle', 'jobId'],
     'itviec': ['job_title', 'job_id'],
-    'monster': ['cleanedJobTitle', 'jobId'],
+    'monster': ['title', 'jobId'],
     'topdev': ['title', 'job_id'],
     'other': ['job_title', 'job_id']
 }
@@ -225,7 +225,7 @@ api_data_cols = {
     'vietnamworks': ['jobId', 'jobTitle', 'createdOn', 'companyName', 'location_name', 'label', 'jobUrl'],
     'itviec': ['job_id', 'job_title', 'posting_date', 'company', 'location', 'label', 'job_link'],
     'topdev': ['job_id', 'title', 'created_on', 'emp_name', 'location_name', 'label', 'detail_url'],
-    'monster': ['jobId', 'cleanedJobTitle', 'createdAt','emp_name', 'location_name', 'label', 'applyUrl'],
+    'monster': ['jobId', 'title', 'createdAt','emp_name', 'location_name', 'label', 'applyUrl'],
     'other': ['job_id', 'job_title', 'created_on' , 'emp_name', 'location_name', 'label', 'job_link']
 }
 
