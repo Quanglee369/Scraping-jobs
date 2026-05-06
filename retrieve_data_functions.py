@@ -160,7 +160,7 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                     data = await response.json()
                     break
                   elif response.status == 429:
-                    logging.warning(f'[fetch_job_headers] Too many request, proceed to retry {retry} time(s)')
+                    logging.warning(f'[fetch_job_headers] Too many request for platform {clean_platform}, proceed to retry {retry} time(s)')
                     await asyncio.sleep(2 ** retry)
                     retry += 1
                     continue
@@ -178,21 +178,21 @@ async def fetch_job_headers(session: aiohttp.ClientSession, keyword: str, page_n
                       break
                       
                   elif response.status == 429:
-                    logging.warning(f'[fetch_job_headers] Too many request, proceed to retry {retry} time(s)')
+                    logging.warning(f'[fetch_job_headers] Too many request for platform {clean_platform}, proceed to retry {retry} time(s)')
                     await asyncio.sleep(2 ** retry)
                     retry += 1
                     continue
                       
                   elif response.status != 200:
-                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}, status: {response.status}')
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform {clean_platform}, status: {response.status}')
                     return {}
                       
                   else:
-                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform: {platform}, status: {response.status}')
+                    logging.error(f'[fetch_job_headers] Can not get job data from api of platform {clean_platform}, status: {response.status}')
                     break
 
       except Exception as e:
-          print(f'[fetch_job_headers] Can not get job headers for position {keyword}, Error: {e}')
+          print(f'[fetch_job_headers] Can not get job headers for position {keyword} on platform {clean_platform}, Error: {e}')
           return {}
 
     if data and isinstance(data, dict):
